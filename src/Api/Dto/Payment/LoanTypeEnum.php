@@ -1,0 +1,14 @@
+<?php
+
+namespace Comfino\Api\Dto\Payment;
+
+enum LoanTypeEnum: string
+{
+    case INSTALLMENTS_ZERO_PERCENT = 'INSTALLMENTS_ZERO_PERCENT';
+    case CONVENIENT_INSTALLMENTS = 'CONVENIENT_INSTALLMENTS';
+    case PAY_LATER = 'PAY_LATER';
+    case COMPANY_INSTALLMENTS = 'COMPANY_INSTALLMENTS';
+    case COMPANY_BNPL = 'COMPANY_BNPL';
+    case RENEWABLE_LIMIT = 'RENEWABLE_LIMIT';
+    case BLIK = 'BLIK';
+}
