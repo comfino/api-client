@@ -2,8 +2,17 @@
     "name": "comfino/api-client",
     "type": "library",
     "description": "Comfino API client library.",
-    "homepage": "https://github.com/comfino/ComfinoApiClient",
+    "keywords": ["library", "api", "client", "comfino", "payment", "gateway", "pay later", "deffered payments"],
+    "homepage": "https://github.com/comfino/api-client",
+    "minimum-stability": "stable",
     "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Artur Kozubski",
+            "email": "akozubski@comperia.pl",
+            "homepage": "https://comfino.pl/api"
+        }
+    ],
     "require": {
         "php": ">=8.2",
         "ext-json": "*",
