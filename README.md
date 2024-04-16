@@ -10,5 +10,5 @@
 ## Testing
 
 ```bash
-composer test
+./bin/composer test
 ```
