@@ -103,7 +103,7 @@ class Client
     }
 
     /**
-     * Sets custom User-Agent.
+     * Sets custom User-Agent header.
      *
      * @param string|null $userAgent
      * @return void

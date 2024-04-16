@@ -1,48 +1,57 @@
 {
-    "name": "comfino/api-client",
-    "type": "library",
-    "description": "Comfino API client library.",
-    "keywords": ["library", "api", "client", "comfino", "payment", "gateway", "pay later", "deffered payments"],
-    "homepage": "https://github.com/comfino/api-client",
-    "minimum-stability": "stable",
-    "license": "BSD-3-Clause",
-    "authors": [
-        {
-            "name": "Artur Kozubski",
-            "email": "akozubski@comperia.pl",
-            "homepage": "https://comfino.pl/api"
-        }
-    ],
-    "require": {
-        "php": ">=8.2",
-        "ext-json": "*",
-        "psr/http-client": "^1.0",
-        "psr/http-client-implementation": "*",
-        "psr/http-factory": "^1.0",
-        "psr/http-factory-implementation": "*"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^10.5",
-        "phpspec/prophecy-phpunit": "^2.1",
-        "php-http/mock-client": "^1.6",
-        "guzzlehttp/psr7": "^2.6"
-    },
-    "autoload": {
-        "psr-4": {
-            "Comfino\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Comfino\\": "tests/"
-        }
-    },
-    "config": {
-        "allow-plugins": {
-            "php-http/discovery": true
-        }
-    },
-    "scripts": {
-        "test": "vendor/bin/phpunit"
-    }
+	"name": "comfino/api-client",
+	"type": "library",
+	"description": "Comfino API client library.",
+	"keywords": [
+		"library",
+		"api",
+		"client",
+		"comfino",
+		"payment",
+		"gateway",
+		"pay later",
+		"deffered payments"
+	],
+	"homepage": "https://github.com/comfino/api-client",
+	"minimum-stability": "stable",
+	"license": "BSD-3-Clause",
+	"authors": [
+		{
+			"name": "Artur Kozubski",
+			"email": "akozubski@comperia.pl",
+			"homepage": "https://comfino.pl/api"
+		}
+	],
+	"require": {
+		"php": ">=8.2",
+		"ext-json": "*",
+		"psr/http-client": "^1.0",
+		"psr/http-client-implementation": "*",
+		"psr/http-factory": "^1.0",
+		"psr/http-factory-implementation": "*"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^10.5",
+		"phpspec/prophecy-phpunit": "^2.1",
+		"php-http/mock-client": "^1.6",
+		"guzzlehttp/psr7": "^2.6"
+	},
+	"autoload": {
+		"psr-4": {
+			"Comfino\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Comfino\\": "tests/"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"php-http/discovery": true
+		}
+	},
+	"scripts": {
+		"test": "vendor/bin/phpunit"
+	}
 }

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if command -v docker-compose > /dev/null ; then
+	docker-compose exec api-client-php-build composer "$@"
+else
+	composer "$@"
+fi

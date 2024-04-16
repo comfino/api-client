@@ -1,0 +1,11 @@
+version: '3.5'
+services:
+    api-client-php-build:
+        build:
+            context: ./
+            dockerfile: config/docker/Dockerfile
+        working_dir: /api-client
+        tty: true
+        volumes:
+            - ./:/api-client
+            - ~/.composer:/home/comfino/.composer
