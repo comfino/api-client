@@ -79,7 +79,7 @@ trait ClientTestTrait
         $this->assertEquals(
             new FinancialProduct(
                 'Raty 0%',
-                LoanTypeEnum::INSTALLMENTS_ZERO_PERCENT,
+                new LoanTypeEnum(LoanTypeEnum::INSTALLMENTS_ZERO_PERCENT),
                 'Szybkie i proste zakupy bez dodatkowych kosztów. Spłacasz dokładnie tyle, ile pożyczasz!',
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<svg version=\"1.1\" id=\"Comfino_InstallmentsZero\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\n\t viewBox=\"0 -60 382.6 273.8\" style=\"enable-background:new 0 0 382.6 213.8;\" xml:space=\"preserve\">\n<style type=\"text/css\">\n\t.st0{fill:#579D33;}\n</style>\n<g>\n\t<g>\n\t\t<path class=\"st0\" d=\"M0,71C0,29.7,27.4,3.7,74.1,3.7s73.8,26,73.8,67.3v71.8c0,41.6-27.1,67.6-73.8,67.6S0,184.5,0,142.8L0,71\n\t\t\tL0,71z M112.9,71c0-22.1-14.2-34.7-38.8-34.7S35.2,49,35.2,71v71.8c0,22.1,14.2,34.9,38.8,34.9s38.8-12.8,38.8-34.9V71z\"/>\n\t\t<path class=\"st0\" d=\"M171.6,45c0-26,16.5-41.6,46.4-41.6s46.4,15.6,46.4,41.6v19.8c0,25.7-16.5,41.1-46.4,41.1\n\t\t\ts-46.4-15.4-46.4-41.1L171.6,45L171.6,45z M356.6,7.9c6.4,0,7.8,4.5,4.5,9.2L228,197.9c-5.6,7.5-7.3,8.4-18.7,8.4h-10.9\n\t\t\tc-6.7,0-8.4-4.2-4.8-9.5l133-181.1c4.8-7,7.3-7.8,17.6-7.8H356.6z M237.2,46.4c0-11.5-6.4-17-19.3-17s-19.3,5.6-19.3,17v16.8\n\t\t\tc0,11.5,6.4,17,19.3,17s19.3-5.6,19.3-17V46.4z M289.8,149.8c0-26,16.5-41.6,46.4-41.6s46.4,15.7,46.4,41.6v19.8\n\t\t\tc0,25.7-16.5,41.1-46.4,41.1s-46.4-15.4-46.4-41.1V149.8z M355.4,151.2c0-11.5-6.4-17-19.3-17c-12.8,0-19.3,5.6-19.3,17v16.5\n\t\t\tc0,11.5,6.4,17.3,19.3,17.3c12.8,0,19.3-5.9,19.3-17.3V151.2z\"/>\n\t</g>\n</g>\n</svg>",
                 40000,
@@ -109,7 +109,7 @@ trait ClientTestTrait
         $order = new Order(
             '11169b13-1f47-4b4a-801e-2934371bc098',
             'https://comfino-shop.test',
-            new LoanParameters(50000, 24, LoanTypeEnum::CONVENIENT_INSTALLMENTS, [LoanTypeEnum::PAY_LATER]),
+            new LoanParameters(50000, 24, new LoanTypeEnum(LoanTypeEnum::CONVENIENT_INSTALLMENTS), [new LoanTypeEnum(LoanTypeEnum::PAY_LATER)]),
             new Cart(
                 [
                     new Cart\CartItem(
@@ -278,10 +278,10 @@ trait ClientTestTrait
     public function testGetProductTypes(): void
     {
         $productTypes = [
-            LoanTypeEnum::INSTALLMENTS_ZERO_PERCENT,
-            LoanTypeEnum::PAY_LATER,
-            LoanTypeEnum::CONVENIENT_INSTALLMENTS,
-            LoanTypeEnum::COMPANY_BNPL,
+            new LoanTypeEnum(LoanTypeEnum::INSTALLMENTS_ZERO_PERCENT),
+            new LoanTypeEnum(LoanTypeEnum::PAY_LATER),
+            new LoanTypeEnum(LoanTypeEnum::CONVENIENT_INSTALLMENTS),
+            new LoanTypeEnum(LoanTypeEnum::COMPANY_BNPL),
         ];
         $productTypesWithNames = [
             'INSTALLMENTS_ZERO_PERCENT' => 'Raty zero procent',

@@ -2,10 +2,17 @@
 
 namespace Comfino\Widget;
 
-enum WidgetTypeEnum: string
+use Comfino\Enum;
+
+readonly class WidgetTypeEnum extends Enum
 {
-    case WIDGET_SIMPLE = 'simple';
-    case WIDGET_MIXED = 'mixed';
-    case WIDGET_WITH_CALCULATOR = 'with-modal';
-    case WIDGET_WITH_EXTENDED_CALCULATOR = 'extended-modal';
+    public const WIDGET_SIMPLE = 'simple';
+    public const WIDGET_MIXED = 'mixed';
+    public const WIDGET_WITH_CALCULATOR = 'with-modal';
+    public const WIDGET_WITH_EXTENDED_CALCULATOR = 'extended-modal';
+
+    public static function from(string $value): WidgetTypeEnum
+    {
+        return new self($value);
+    }
 }
