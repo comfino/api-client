@@ -37,16 +37,13 @@ class EnumTest extends TestCase
         $this->assertEquals(TestedEnum::THREE, (string) $enum3);
     }
 
-    /**
-     * @throws \JsonException
-     */
     public function testEnumMethods(): void
     {
         $this->assertEquals([TestedEnum::ONE, TestedEnum::TWO, TestedEnum::THREE], TestedEnum::values());
         $this->assertEquals(['ONE', 'TWO', 'THREE'], TestedEnum::names());
         $this->assertJsonStringEqualsJsonString(
             '["1","2"]',
-            json_encode([new TestedEnum(TestedEnum::ONE), new TestedEnum(TestedEnum::TWO)], JSON_THROW_ON_ERROR)
+            json_encode([new TestedEnum(TestedEnum::ONE), new TestedEnum(TestedEnum::TWO)])
         );
     }
 
