@@ -1,6 +1,6 @@
 version: '3.5'
 services:
-    api-client-php-build:
+    api-client-php-dev:
         build:
             context: ./
             dockerfile: config/docker/Dockerfile
