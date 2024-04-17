@@ -2,10 +2,12 @@
 
 namespace Comfino\Api;
 
-use Comfino\ClientTestTemplate;
+use Comfino\ClientTestTrait;
+use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 
-class ClientTest extends ClientTestTemplate
+class ClientTest extends TestCase
 {
     use ProphecyTrait;
+    use ClientTestTrait;
 }
