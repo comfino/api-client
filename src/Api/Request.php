@@ -13,7 +13,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 abstract class Request
 {
     /** @var SerializerInterface */
-    private SerializerInterface $serializer;
+    protected SerializerInterface $serializer;
     /** @var string */
     private string $method;
     /** @var string */
