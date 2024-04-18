@@ -34,7 +34,8 @@
 		"phpunit/phpunit": "^10.5",
 		"phpspec/prophecy-phpunit": "^2.1",
 		"php-http/mock-client": "^1.6",
-		"guzzlehttp/psr7": "^2.6"
+		"sunrise/http-factory": "^2.0",
+		"nyholm/psr7": "^1.8"
 	},
 	"autoload": {
 		"psr-4": {

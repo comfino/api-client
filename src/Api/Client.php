@@ -23,6 +23,7 @@ use Comfino\Api\Response\GetProductTypes as GetProductTypesResponse;
 use Comfino\Api\Response\GetWidgetKey as GetWidgetKeyResponse;
 use Comfino\Api\Response\GetWidgetTypes as GetWidgetTypesResponse;
 use Comfino\Api\Response\IsShopAccountActive as IsShopAccountActiveResponse;
+use Comfino\Api\Serializer\Json as JsonSerializer;
 use Comfino\Shop\Order\OrderInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -38,18 +39,20 @@ use Psr\Http\Message\StreamFactoryInterface;
  */
 class Client
 {
-    private const CLIENT_VERSION = '1.0';
-    private const PRODUCTION_HOST = 'https://api-ecommerce.comfino.pl';
-    private const SANDBOX_HOST = 'https://api-ecommerce.ecraty.pl';
+    protected const CLIENT_VERSION = '1.0';
+    protected const PRODUCTION_HOST = 'https://api-ecommerce.comfino.pl';
+    protected const SANDBOX_HOST = 'https://api-ecommerce.ecraty.pl';
 
+    /** @var SerializerInterface */
+    protected SerializerInterface $serializer;
     /** @var string */
-    private string $apiLanguage = 'pl';
+    protected string $apiLanguage = 'pl';
     /** @var string|null */
-    private ?string $customApiHost = null;
+    protected ?string $customApiHost = null;
     /** @var string|null */
-    private ?string $customUserAgent = null;
+    protected ?string $customUserAgent = null;
     /** @var bool */
-    private bool $isSandboxMode = false;
+    protected bool $isSandboxMode = false;
 
     /**
      * Comfino API client.
@@ -61,12 +64,24 @@ class Client
      * @param int $apiVersion Selected API version (default: v1)
      */
     public function __construct(
-        private readonly RequestFactoryInterface $requestFactory,
-        private readonly StreamFactoryInterface $streamFactory,
-        private readonly ClientInterface $client,
-        private readonly ?string $apiKey,
-        private int $apiVersion = 1
+        protected readonly RequestFactoryInterface $requestFactory,
+        protected readonly StreamFactoryInterface $streamFactory,
+        protected readonly ClientInterface $client,
+        protected readonly ?string $apiKey,
+        protected int $apiVersion = 1
     ) {
+        $this->serializer = new JsonSerializer();
+    }
+
+    /**
+     * Sets custom request/response serializer.
+     *
+     * @param SerializerInterface $serializer
+     * @return void
+     */
+    public function setSerializer(SerializerInterface $serializer): void
+    {
+        $this->serializer = $serializer;
     }
 
     /**
@@ -143,7 +158,10 @@ class Client
      */
     public function isShopAccountActive(): bool
     {
-        return (new IsShopAccountActiveResponse($this->sendRequest(new IsShopAccountActiveRequest())))->isActive;
+        return (new IsShopAccountActiveResponse(
+            $this->sendRequest((new IsShopAccountActiveRequest())->setSerializer($this->serializer)),
+            $this->serializer
+        ))->isActive;
     }
 
     /**
@@ -160,7 +178,8 @@ class Client
     public function getFinancialProducts(LoanQueryCriteria $queryCriteria): GetFinancialProductsResponse
     {
         return new GetFinancialProductsResponse(
-            $this->sendRequest(new GetFinancialProductsRequest($queryCriteria))
+            $this->sendRequest((new GetFinancialProductsRequest($queryCriteria))->setSerializer($this->serializer)),
+            $this->serializer
         );
     }
 
@@ -179,7 +198,10 @@ class Client
      */
     public function createOrder(OrderInterface $order): CreateOrderResponse
     {
-        return new CreateOrderResponse($this->sendRequest(new CreateOrderRequest($order)));
+        return new CreateOrderResponse(
+            $this->sendRequest((new CreateOrderRequest($order))->setSerializer($this->serializer)),
+            $this->serializer
+        );
     }
 
     /**
@@ -197,7 +219,10 @@ class Client
      */
     public function getOrder(string $orderId): GetOrderResponse
     {
-        return new GetOrderResponse($this->sendRequest(new GetOrderRequest($orderId)));
+        return new GetOrderResponse(
+            $this->sendRequest((new GetOrderRequest($orderId))->setSerializer($this->serializer)),
+            $this->serializer
+        );
     }
 
     /**
@@ -213,7 +238,10 @@ class Client
      */
     public function cancelOrder(string $orderId): void
     {
-        new BaseApiResponse($this->sendRequest(new CancelOrderRequest($orderId)));
+        new BaseApiResponse(
+            $this->sendRequest((new CancelOrderRequest($orderId))->setSerializer($this->serializer)),
+            $this->serializer
+        );
     }
 
     /**
@@ -227,7 +255,10 @@ class Client
      */
     public function getProductTypes(): GetProductTypesResponse
     {
-        return new GetProductTypesResponse($this->sendRequest(new GetProductTypesRequest()));
+        return new GetProductTypesResponse(
+            $this->sendRequest((new GetProductTypesRequest())->setSerializer($this->serializer)),
+            $this->serializer
+        );
     }
 
     /**
@@ -241,7 +272,10 @@ class Client
      */
     public function getWidgetKey(): string
     {
-        return (new GetWidgetKeyResponse($this->sendRequest(new GetWidgetKeyRequest())))->widgetKey;
+        return (new GetWidgetKeyResponse(
+            $this->sendRequest((new GetWidgetKeyRequest())->setSerializer($this->serializer)),
+            $this->serializer
+        ))->widgetKey;
     }
 
     /**
@@ -255,7 +289,10 @@ class Client
      */
     public function getWidgetTypes(): GetWidgetTypesResponse
     {
-        return new GetWidgetTypesResponse($this->sendRequest(new GetWidgetTypesRequest()));
+        return new GetWidgetTypesResponse(
+            $this->sendRequest((new GetWidgetTypesRequest())->setSerializer($this->serializer)),
+            $this->serializer
+        );
     }
 
     protected function getApiHost(): string

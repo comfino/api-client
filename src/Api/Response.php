@@ -11,6 +11,9 @@ use Psr\Http\Message\ResponseInterface;
 
 abstract class Response
 {
+    /** @var SerializerInterface */
+    protected SerializerInterface $serializer;
+
     /**
      * Extracts API response data from input PSR-7 compatible HTTP response object.
      *
@@ -24,7 +27,10 @@ abstract class Response
      */
     final public function initFromPsrResponse(ResponseInterface $response): self
     {
-        $deserializedResponseBody = $this->deserializeResponseBody($response->getBody()->getContents());
+        $responseBody = $response->getBody();
+        $responseBody->rewind();
+
+        $deserializedResponseBody = $this->deserializeResponseBody($responseBody->getContents());
 
         if ($response->getStatusCode() >= 500) {
             throw new ServiceUnavailable(
@@ -77,13 +83,7 @@ abstract class Response
      */
     private function deserializeResponseBody(string $responseBody): array|string|bool|null
     {
-        try {
-            $deserializedResponseBody = !empty($responseBody) ? json_decode($responseBody, true, 512, JSON_THROW_ON_ERROR) : null;
-        } catch (\JsonException $e) {
-            throw new ResponseValidationError("Invalid response data: {$e->getMessage()}", 0, $e);
-        }
-
-        return $deserializedResponseBody;
+        return !empty($responseBody) ? $this->serializer->unserialize($responseBody) : null;
     }
 
     private function getErrorMessage(array|string|bool|null $deserializedResponseBody, ?string $defaultMessage = null): ?string

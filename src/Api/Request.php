@@ -12,12 +12,21 @@ use Psr\Http\Message\StreamFactoryInterface;
  */
 abstract class Request
 {
+    /** @var SerializerInterface */
+    private SerializerInterface $serializer;
     /** @var string */
     private string $method;
     /** @var string */
     private string $apiEndpointPath;
     /** @var array|null */
     private ?array $requestParams;
+
+    final public function setSerializer(SerializerInterface $serializer): self
+    {
+        $this->serializer = $serializer;
+
+        return $this;
+    }
 
     /**
      * Returns PSR-7 compatible HTTP request object.
@@ -42,19 +51,15 @@ abstract class Request
             throw new RequestValidationError('Invalid request data: API endpoint path undefined.');
         }
 
-        try {
-            $request = $requestFactory->createRequest($this->method, $this->getApiEndpointUri($apiHost, $apiVersion));
-            $body = $this->serializeRequestBody();
-        } catch (\JsonException $e) {
-            throw new RequestValidationError("Invalid request data: {$e->getMessage()}", 0, $e);
-        }
+        $request = $requestFactory->createRequest($this->method, $this->getApiEndpointUri($apiHost, $apiVersion));
+        $body = $this->serializeRequestBody();
 
         return $body !== null ? $request->withBody($streamFactory->createStream($body)) : $request;
     }
 
     /**
      * @return string
-     * @throws \JsonException
+     * @throws RequestValidationError
      */
     final public function __toString(): string
     {
@@ -90,11 +95,11 @@ abstract class Request
 
     /**
      * @return string|null
-     * @throws \JsonException
+     * @throws RequestValidationError
      */
     final protected function serializeRequestBody(): ?string
     {
-        return ($body = $this->prepareRequestBody()) !== null ? json_encode($body, JSON_THROW_ON_ERROR) : null;
+        return ($body = $this->prepareRequestBody()) !== null ? $this->serializer->serialize($body) : null;
     }
 
     /**
