@@ -43,8 +43,6 @@ class Client
     protected const PRODUCTION_HOST = 'https://api-ecommerce.comfino.pl';
     protected const SANDBOX_HOST = 'https://api-ecommerce.ecraty.pl';
 
-    /** @var SerializerInterface */
-    protected SerializerInterface $serializer;
     /** @var string */
     protected string $apiLanguage = 'pl';
     /** @var string|null */
@@ -68,9 +66,10 @@ class Client
         protected readonly StreamFactoryInterface $streamFactory,
         protected readonly ClientInterface $client,
         protected readonly ?string $apiKey,
-        protected int $apiVersion = 1
+        protected int $apiVersion = 1,
+        protected ?SerializerInterface $serializer = null
     ) {
-        $this->serializer = new JsonSerializer();
+        $this->serializer = $serializer ?? new JsonSerializer();
     }
 
     /**
