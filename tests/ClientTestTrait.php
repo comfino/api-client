@@ -167,7 +167,7 @@ trait ClientTestTrait
                 '3559197034',
                 null,
                 null,
-                new \Comfino\Shop\Order\Customer\Address('Test street', '13', '21', '10-899', 'Test city', 'PL')
+                new Shop\Order\Customer\Address('Test street', '13', '21', '10-899', 'Test city', 'PL')
             ),
             'https://comfino-shop.test/notification',
             new Seller('472156893')
