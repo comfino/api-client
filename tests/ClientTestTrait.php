@@ -158,7 +158,7 @@ trait ClientTestTrait
                     ),
                 ], 50000, 2000, 'elektronika'
             ),
-            new \Comfino\Shop\Order\Customer(
+            new Shop\Order\Customer(
                 'John',
                 'Doe',
                 'mail@test',
