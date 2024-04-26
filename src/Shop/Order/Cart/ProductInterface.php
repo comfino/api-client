@@ -21,4 +21,7 @@ interface ProductInterface
 
     /** @return string|null */
     public function getPhotoUrl(): ?string;
+
+    /** @return int[]|null */
+    public function getCategoryIds(): ?array;
 }

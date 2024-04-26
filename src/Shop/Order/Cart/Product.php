@@ -16,6 +16,8 @@ class Product implements ProductInterface
     private ?string $ean;
     /** @var string|null */
     private ?string $photoUrl;
+    /** @var int[]|null */
+    private ?array $categoryIds;
 
     /**
      * @param string $name
@@ -24,6 +26,7 @@ class Product implements ProductInterface
      * @param string|null $category
      * @param string|null $ean
      * @param string|null $photoUrl
+     * @param int[]|null $categoryIds
      */
     public function __construct(
         string $name,
@@ -31,7 +34,8 @@ class Product implements ProductInterface
         ?string $id = null,
         ?string $category = null,
         ?string $ean = null,
-        ?string $photoUrl = null
+        ?string $photoUrl = null,
+        ?array $categoryIds = null
     ) {
         $this->name = $name;
         $this->price = $price;
@@ -39,6 +43,7 @@ class Product implements ProductInterface
         $this->category = $category;
         $this->ean = $ean;
         $this->photoUrl = $photoUrl;
+        $this->categoryIds = $categoryIds;
     }
 
     /**
@@ -87,5 +92,13 @@ class Product implements ProductInterface
     public function getPhotoUrl(): ?string
     {
         return $this->photoUrl;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getCategoryIds(): ?array
+    {
+        return $this->categoryIds;
     }
 }
