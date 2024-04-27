@@ -7,11 +7,9 @@ readonly abstract class Enum implements \JsonSerializable
 {
     private string $value;
 
-    public function __construct(string $value)
+    public function __construct(string $value, bool $strict = true)
     {
-        $values = (new \ReflectionObject($this))->getConstants();
-
-        if (!in_array($value, $values, true)) {
+        if ($strict && !in_array($value, (new \ReflectionObject($this))->getConstants(), true)) {
             throw new \InvalidArgumentException("Value '$value' does not exist.");
         }
 
@@ -28,7 +26,7 @@ readonly abstract class Enum implements \JsonSerializable
         return array_keys((new \ReflectionClass(static::class))->getConstants());
     }
 
-    abstract public static function from(string $value): self;
+    abstract public static function from(string $value, bool $strict = true): self;
 
     public function jsonSerialize(): string
     {

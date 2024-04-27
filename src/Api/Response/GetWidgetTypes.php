@@ -23,7 +23,7 @@ class GetWidgetTypes extends Base
 
         $this->widgetTypesWithNames = $deserializedResponseBody;
         $this->widgetTypes = array_map(
-            static fn (string $widgetType): WidgetTypeEnum => WidgetTypeEnum::from($widgetType),
+            static fn (string $widgetType): WidgetTypeEnum => WidgetTypeEnum::from($widgetType, false),
             array_keys($deserializedResponseBody)
         );
     }

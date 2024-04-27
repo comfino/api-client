@@ -11,8 +11,8 @@ readonly class WidgetTypeEnum extends Enum
     public const WIDGET_WITH_CALCULATOR = 'with-modal';
     public const WIDGET_WITH_EXTENDED_CALCULATOR = 'extended-modal';
 
-    public static function from(string $value): WidgetTypeEnum
+    public static function from(string $value, bool $strict = true): WidgetTypeEnum
     {
-        return new self($value);
+        return new self($value, $strict);
     }
 }

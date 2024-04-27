@@ -23,7 +23,7 @@ class GetProductTypes extends Base
 
         $this->productTypesWithNames = $deserializedResponseBody;
         $this->productTypes = array_map(
-            static fn (string $productType): LoanTypeEnum => LoanTypeEnum::from($productType),
+            static fn (string $productType): LoanTypeEnum => LoanTypeEnum::from($productType, false),
             array_keys($deserializedResponseBody)
         );
     }

@@ -10,9 +10,9 @@ readonly class TestedEnum extends Enum
     public const TWO = '2';
     public const THREE = '3';
 
-    public static function from(string $value): TestedEnum
+    public static function from(string $value, bool $strict = true): TestedEnum
     {
-        return new self($value);
+        return new self($value, $strict);
     }
 }
 
@@ -52,5 +52,11 @@ class EnumTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         TestedEnum::from('InvalidEnum');
+    }
+
+    public function testStrictModeOff(): void
+    {
+        $this->assertEquals('InvalidEnum', (string) TestedEnum::from('InvalidEnum', false));
+        $this->assertJsonStringEqualsJsonString('"InvalidEnum"', '"' . TestedEnum::from('InvalidEnum', false)->jsonSerialize() . '"');
     }
 }
