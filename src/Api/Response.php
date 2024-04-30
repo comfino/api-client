@@ -30,7 +30,11 @@ abstract class Response
         $responseBody = $response->getBody();
         $responseBody->rewind();
 
-        $deserializedResponseBody = $this->deserializeResponseBody($responseBody->getContents());
+        if (strpos($response->getHeader('Content-Type')[0], 'application/json') !== false) {
+            $deserializedResponseBody = $this->deserializeResponseBody($responseBody->getContents());
+        } else {
+            $deserializedResponseBody = $responseBody->getContents();
+        }
 
         if ($response->getStatusCode() >= 500) {
             throw new ServiceUnavailable(

@@ -11,6 +11,8 @@ use Comfino\Api\Request\CancelOrder as CancelOrderRequest;
 use Comfino\Api\Request\CreateOrder as CreateOrderRequest;
 use Comfino\Api\Request\GetFinancialProducts as GetFinancialProductsRequest;
 use Comfino\Api\Request\GetOrder as GetOrderRequest;
+use Comfino\Api\Request\GetPaywall as GetPaywallRequest;
+use Comfino\Api\Request\GetPaywallFragments as GetPaywallFragmentsRequest;
 use Comfino\Api\Request\GetProductTypes as GetProductTypesRequest;
 use Comfino\Api\Request\GetWidgetKey as GetWidgetKeyRequest;
 use Comfino\Api\Request\GetWidgetTypes as GetWidgetTypesRequest;
@@ -19,6 +21,8 @@ use Comfino\Api\Response\Base as BaseApiResponse;
 use Comfino\Api\Response\CreateOrder as CreateOrderResponse;
 use Comfino\Api\Response\GetFinancialProducts as GetFinancialProductsResponse;
 use Comfino\Api\Response\GetOrder as GetOrderResponse;
+use Comfino\Api\Response\GetPaywall as GetPaywallResponse;
+use Comfino\Api\Response\GetPaywallFragments as GetPaywallFragmentsResponse;
 use Comfino\Api\Response\GetProductTypes as GetProductTypesResponse;
 use Comfino\Api\Response\GetWidgetKey as GetWidgetKeyResponse;
 use Comfino\Api\Response\GetWidgetTypes as GetWidgetTypesResponse;
@@ -290,6 +294,40 @@ class Client
     {
         return new GetWidgetTypesResponse(
             $this->sendRequest((new GetWidgetTypesRequest())->setSerializer($this->serializer)),
+            $this->serializer
+        );
+    }
+
+    /**
+     * Returns a complete paywall page.
+     *
+     * @throws RequestValidationError
+     * @throws AuthorizationError
+     * @throws AccessDenied
+     * @throws ServiceUnavailable
+     * @throws ClientExceptionInterface
+     */
+    public function getPaywall(): GetPaywallResponse
+    {
+        return new GetPaywallResponse(
+            $this->sendRequest((new GetPaywallRequest())->setSerializer($this->serializer)),
+            $this->serializer
+        );
+    }
+
+    /**
+     * Returns a list of paywall fragments.
+     *
+     * @throws RequestValidationError
+     * @throws AuthorizationError
+     * @throws AccessDenied
+     * @throws ServiceUnavailable
+     * @throws ClientExceptionInterface
+     */
+    public function getPaywallFragments(): GetPaywallFragmentsResponse
+    {
+        return new GetPaywallFragmentsResponse(
+            $this->sendRequest((new GetPaywallFragmentsRequest())->setSerializer($this->serializer)),
             $this->serializer
         );
     }

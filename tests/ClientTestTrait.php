@@ -342,12 +342,36 @@ trait ClientTestTrait
         $this->initApiClient('/v1/widget-types', 'GET')->getWidgetTypes();
     }
 
+    public function testGetPaywall(): void
+    {
+        $paywallPageContents = 'PAYWALL_PAGE_CONTENTS';
+
+        $apiClient = $this->initApiClient('/v1/shop-plugin-paywall', 'GET', null, null, $paywallPageContents, 'API-KEY', false, 200, 'text/html');
+        $response = $apiClient->getPaywall();
+
+        $this->assertEquals($paywallPageContents, $response->paywallPage);
+    }
+
+    public function testGetPaywallFragments(): void
+    {
+        $paywallPageFragments = [
+            'template' => 'TEMPLATE_CONTENTS',
+            'style' => 'STYLE_CONTENTS',
+            'script' => 'SCRIPT_CONTENTS',
+        ];
+
+        $apiClient = $this->initApiClient('/v1/shop-plugin-paywall-fragments', 'GET', null, null, $paywallPageFragments, 'API-KEY');
+        $response = $apiClient->getPaywallFragments();
+
+        $this->assertEquals($paywallPageFragments, $response->paywallFragments);
+    }
+
     protected function setUp(): void
     {
         $this->productionApiHost = parse_url($this->getConstantFromClass(Client::class, 'PRODUCTION_HOST'), PHP_URL_HOST);
     }
 
-    private function initApiClient(string $endpointPath, string $method, ?array $queryParameters = null, ?string $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200): Client
+    private function initApiClient(string $endpointPath, string $method, ?array $queryParameters = null, ?string $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200, string $contentType = 'application/json'): Client
     {
         $client = new \Http\Mock\Client();
         $client->on(
@@ -358,7 +382,7 @@ trait ClientTestTrait
         return new Client(new RequestFactory(), new StreamFactory(), $client, $apiKey);
     }
 
-    private function processRequest(RequestInterface $request, ?array $queryParameters = null, ?string $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200): ResponseInterface
+    private function processRequest(RequestInterface $request, ?array $queryParameters = null, ?string $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200, string $contentType = 'application/json'): ResponseInterface
     {
         if (!$isPublicEndpoint && (!$request->hasHeader('Api-Key') || $request->getHeaderLine('Api-Key') !== $apiKey)) {
             return (new ResponseFactory())->createJsonResponse(401, ['message' => 'Invalid credentials.']);
@@ -376,6 +400,14 @@ trait ClientTestTrait
             $this->assertEquals('', $request->getUri()->getQuery(), 'Request URL query string is invalid.');
         }
 
-        return (new ResponseFactory())->createJsonResponse($responseStatus, $responseData);
+        if ($contentType === 'application/json') {
+            return (new ResponseFactory())->createJsonResponse($responseStatus, $responseData);
+        }
+
+        if ($contentType === 'text/html') {
+            return (new ResponseFactory())->createHtmlResponse($responseStatus, $responseData);
+        }
+
+        return (new ResponseFactory())->createResponse($responseStatus, $responseData)->withHeader('Content-Type', $contentType);
     }
 }
