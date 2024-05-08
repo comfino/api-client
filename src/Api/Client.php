@@ -358,7 +358,7 @@ class Client
         );
     }
 
-    private function getUserAgent(): string
+    protected function getUserAgent(): string
     {
         return $this->customUserAgent ?? "Comfino API client {$this->getVersion()}";
     }
