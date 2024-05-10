@@ -28,6 +28,7 @@ use Comfino\Api\Response\GetWidgetKey as GetWidgetKeyResponse;
 use Comfino\Api\Response\GetWidgetTypes as GetWidgetTypesResponse;
 use Comfino\Api\Response\IsShopAccountActive as IsShopAccountActiveResponse;
 use Comfino\Api\Serializer\Json as JsonSerializer;
+use Comfino\FinancialProduct\ProductTypesListTypeEnum;
 use Comfino\Shop\Order\OrderInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -256,10 +257,10 @@ class Client
      * @throws ServiceUnavailable
      * @throws ClientExceptionInterface
      */
-    public function getProductTypes(): GetProductTypesResponse
+    public function getProductTypes(ProductTypesListTypeEnum $listType): GetProductTypesResponse
     {
         return new GetProductTypesResponse(
-            $this->sendRequest((new GetProductTypesRequest())->setSerializer($this->serializer)),
+            $this->sendRequest((new GetProductTypesRequest($listType))->setSerializer($this->serializer)),
             $this->serializer
         );
     }

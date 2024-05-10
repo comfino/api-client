@@ -10,6 +10,7 @@ use Comfino\Api\Dto\Payment\FinancialProduct;
 use Comfino\Api\Dto\Payment\LoanQueryCriteria;
 use Comfino\Api\Dto\Payment\LoanTypeEnum;
 use Comfino\Api\Exception\AuthorizationError;
+use Comfino\FinancialProduct\ProductTypesListTypeEnum;
 use Comfino\Shop\Order\Cart;
 use Comfino\Shop\Order\LoanParameters;
 use Comfino\Shop\Order\Order;
@@ -293,15 +294,16 @@ trait ClientTestTrait
             'CONVENIENT_INSTALLMENTS' => 'Niskie raty',
             'COMPANY_BNPL' => 'Odroczone płatności dla firm',
         ];
+        $listType = new ProductTypesListTypeEnum(ProductTypesListTypeEnum::LIST_TYPE_PAYWALL);
 
-        $apiClient = $this->initApiClient('/v1/product-types', 'GET', null, null, $productTypesWithNames, 'API-KEY');
-        $response = $apiClient->getProductTypes();
+        $apiClient = $this->initApiClient('/v1/product-types', 'GET', ['listType' => (string) $listType], null, $productTypesWithNames, 'API-KEY');
+        $response = $apiClient->getProductTypes($listType);
 
         $this->assertEquals($productTypes, $response->productTypes);
         $this->assertEquals($productTypesWithNames, $response->productTypesWithNames);
 
         $this->expectException(AuthorizationError::class);
-        $this->initApiClient('/v1/product-types', 'GET')->getProductTypes();
+        $this->initApiClient('/v1/product-types', 'GET', ['listType' => (string) $listType])->getProductTypes($listType);
     }
 
     public function testGetWidgetKey(): void
