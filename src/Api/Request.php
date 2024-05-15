@@ -20,6 +20,10 @@ abstract class Request
     private string $apiEndpointPath;
     /** @var array|null */
     private ?array $requestParams;
+    /** @var string|null */
+    private ?string $requestUri = null;
+    /** @var string|null */
+    private ?string $requestBody = null;
 
     final public function setSerializer(SerializerInterface $serializer): self
     {
@@ -44,17 +48,42 @@ abstract class Request
         string $apiHost,
         int $apiVersion
     ): RequestInterface {
+        $this->requestUri = $this->getApiEndpointUri($apiHost, $apiVersion);
+
         if (empty($this->method)) {
-            throw new RequestValidationError('Invalid request data: HTTP method undefined.');
+            throw new RequestValidationError('Invalid request data: HTTP method undefined.', 0, null, $this->requestUri);
         }
         if (empty($this->apiEndpointPath)) {
-            throw new RequestValidationError('Invalid request data: API endpoint path undefined.');
+            throw new RequestValidationError('Invalid request data: API endpoint path undefined.', 0, null, $this->requestUri);
         }
 
-        $request = $requestFactory->createRequest($this->method, $this->getApiEndpointUri($apiHost, $apiVersion));
-        $body = $this->serializeRequestBody();
+        $request = $requestFactory->createRequest($this->method, $this->requestUri);
 
-        return $body !== null ? $request->withBody($streamFactory->createStream($body)) : $request;
+        try {
+            $this->requestBody = $this->serializeRequestBody();
+        } catch (RequestValidationError $e) {
+            $e->setUrl($this->requestUri);
+
+            throw $e;
+        }
+
+        return $this->requestBody !== null ? $request->withBody($streamFactory->createStream($this->requestBody)) : $request;
+    }
+
+    /**
+     * @return string|null
+     */
+    final public function getRequestUri(): ?string
+    {
+        return $this->requestUri;
+    }
+
+    /**
+     * @return string|null
+     */
+    final public function getRequestBody(): ?string
+    {
+        return $this->requestBody;
     }
 
     /**

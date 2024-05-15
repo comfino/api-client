@@ -6,6 +6,7 @@ use Comfino\Api\Dto\Payment\LoanQueryCriteria;
 use Comfino\Api\Exception\AccessDenied;
 use Comfino\Api\Exception\AuthorizationError;
 use Comfino\Api\Exception\RequestValidationError;
+use Comfino\Api\Exception\ResponseValidationError;
 use Comfino\Api\Exception\ServiceUnavailable;
 use Comfino\Api\Request\CancelOrder as CancelOrderRequest;
 use Comfino\Api\Request\CreateOrder as CreateOrderRequest;
@@ -155,6 +156,7 @@ class Client
      *
      * @return bool
      * @throws RequestValidationError
+     * @throws ResponseValidationError
      * @throws AuthorizationError
      * @throws AccessDenied
      * @throws ServiceUnavailable
@@ -162,10 +164,17 @@ class Client
      */
     public function isShopAccountActive(): bool
     {
-        return (new IsShopAccountActiveResponse(
-            $this->sendRequest((new IsShopAccountActiveRequest())->setSerializer($this->serializer)),
-            $this->serializer
-        ))->isActive;
+        try {
+            $request = (new IsShopAccountActiveRequest())->setSerializer($this->serializer);
+
+            return (new IsShopAccountActiveResponse($this->sendRequest($request), $this->serializer))->isActive;
+        } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
+            if (isset($request)) {
+                $e->setRequestBody($request->getRequestBody() ?? '');
+            }
+
+            throw $e;
+        }
     }
 
     /**
@@ -174,6 +183,7 @@ class Client
      * @param LoanQueryCriteria $queryCriteria
      * @return GetFinancialProductsResponse
      * @throws RequestValidationError
+     * @throws ResponseValidationError
      * @throws AuthorizationError
      * @throws AccessDenied
      * @throws ServiceUnavailable
@@ -181,20 +191,26 @@ class Client
      */
     public function getFinancialProducts(LoanQueryCriteria $queryCriteria): GetFinancialProductsResponse
     {
-        return new GetFinancialProductsResponse(
-            $this->sendRequest((new GetFinancialProductsRequest($queryCriteria))->setSerializer($this->serializer)),
-            $this->serializer
-        );
+        try {
+            $request = (new GetFinancialProductsRequest($queryCriteria))->setSerializer($this->serializer);
+
+            return new GetFinancialProductsResponse($this->sendRequest($request), $this->serializer);
+        } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
+            if (isset($request)) {
+                $e->setRequestBody($request->getRequestBody() ?? '');
+            }
+
+            throw $e;
+        }
     }
 
     /**
      * Submits a loan application.
      *
      * @param OrderInterface $order Full order data (cart, loan details)
-     *
      * @return CreateOrderResponse
-     *
      * @throws RequestValidationError
+     * @throws ResponseValidationError
      * @throws AuthorizationError
      * @throws AccessDenied
      * @throws ServiceUnavailable
@@ -202,20 +218,26 @@ class Client
      */
     public function createOrder(OrderInterface $order): CreateOrderResponse
     {
-        return new CreateOrderResponse(
-            $this->sendRequest((new CreateOrderRequest($order))->setSerializer($this->serializer)),
-            $this->serializer
-        );
+        try {
+            $request = (new CreateOrderRequest($order))->setSerializer($this->serializer);
+
+            return new CreateOrderResponse($this->sendRequest($request), $this->serializer);
+        } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
+            if (isset($request)) {
+                $e->setRequestBody($request->getRequestBody() ?? '');
+            }
+
+            throw $e;
+        }
     }
 
     /**
      * Returns a details of specified loan application.
      *
      * @param string $orderId Loan application ID returned by createOrder action
-     *
      * @return GetOrderResponse
-     *
      * @throws RequestValidationError
+     * @throws ResponseValidationError
      * @throws AuthorizationError
      * @throws AccessDenied
      * @throws ServiceUnavailable
@@ -223,18 +245,25 @@ class Client
      */
     public function getOrder(string $orderId): GetOrderResponse
     {
-        return new GetOrderResponse(
-            $this->sendRequest((new GetOrderRequest($orderId))->setSerializer($this->serializer)),
-            $this->serializer
-        );
+        try {
+            $request = (new GetOrderRequest($orderId))->setSerializer($this->serializer);
+
+            return new GetOrderResponse($this->sendRequest($request), $this->serializer);
+        } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
+            if (isset($request)) {
+                $e->setRequestBody($request->getRequestBody() ?? '');
+            }
+
+            throw $e;
+        }
     }
 
     /**
      * Cancels a loan application.
      *
      * @param string $orderId Loan application ID returned by createOrder action
-     *
      * @throws RequestValidationError
+     * @throws ResponseValidationError
      * @throws AuthorizationError
      * @throws AccessDenied
      * @throws ServiceUnavailable
@@ -242,16 +271,24 @@ class Client
      */
     public function cancelOrder(string $orderId): void
     {
-        new BaseApiResponse(
-            $this->sendRequest((new CancelOrderRequest($orderId))->setSerializer($this->serializer)),
-            $this->serializer
-        );
+        try {
+            $request = (new CancelOrderRequest($orderId))->setSerializer($this->serializer);
+
+            new BaseApiResponse($this->sendRequest($request), $this->serializer);
+        } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
+            if (isset($request)) {
+                $e->setRequestBody($request->getRequestBody() ?? '');
+            }
+
+            throw $e;
+        }
     }
 
     /**
      * Returns a list of available financial product types associated with an authorized shop account.
      *
      * @throws RequestValidationError
+     * @throws ResponseValidationError
      * @throws AuthorizationError
      * @throws AccessDenied
      * @throws ServiceUnavailable
@@ -259,16 +296,24 @@ class Client
      */
     public function getProductTypes(ProductTypesListTypeEnum $listType): GetProductTypesResponse
     {
-        return new GetProductTypesResponse(
-            $this->sendRequest((new GetProductTypesRequest($listType))->setSerializer($this->serializer)),
-            $this->serializer
-        );
+        try {
+            $request = (new GetProductTypesRequest($listType))->setSerializer($this->serializer);
+
+            return new GetProductTypesResponse($this->sendRequest($request), $this->serializer);
+        } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
+            if (isset($request)) {
+                $e->setRequestBody($request->getRequestBody() ?? '');
+            }
+
+            throw $e;
+        }
     }
 
     /**
      * Returns a widget key associated with an authorized shop account.
      *
      * @throws RequestValidationError
+     * @throws ResponseValidationError
      * @throws AuthorizationError
      * @throws AccessDenied
      * @throws ServiceUnavailable
@@ -276,16 +321,24 @@ class Client
      */
     public function getWidgetKey(): string
     {
-        return (new GetWidgetKeyResponse(
-            $this->sendRequest((new GetWidgetKeyRequest())->setSerializer($this->serializer)),
-            $this->serializer
-        ))->widgetKey;
+        try {
+            $request = (new GetWidgetKeyRequest())->setSerializer($this->serializer);
+
+            return (new GetWidgetKeyResponse($this->sendRequest($request), $this->serializer))->widgetKey;
+        } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
+            if (isset($request)) {
+                $e->setRequestBody($request->getRequestBody() ?? '');
+            }
+
+            throw $e;
+        }
     }
 
     /**
      * Returns a list of available widget types associated with an authorized shop account.
      *
      * @throws RequestValidationError
+     * @throws ResponseValidationError
      * @throws AuthorizationError
      * @throws AccessDenied
      * @throws ServiceUnavailable
@@ -293,16 +346,24 @@ class Client
      */
     public function getWidgetTypes(): GetWidgetTypesResponse
     {
-        return new GetWidgetTypesResponse(
-            $this->sendRequest((new GetWidgetTypesRequest())->setSerializer($this->serializer)),
-            $this->serializer
-        );
+        try {
+            $request = (new GetWidgetTypesRequest())->setSerializer($this->serializer);
+
+            return new GetWidgetTypesResponse($this->sendRequest($request), $this->serializer);
+        } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
+            if (isset($request)) {
+                $e->setRequestBody($request->getRequestBody() ?? '');
+            }
+
+            throw $e;
+        }
     }
 
     /**
      * Returns a complete paywall page.
      *
      * @throws RequestValidationError
+     * @throws ResponseValidationError
      * @throws AuthorizationError
      * @throws AccessDenied
      * @throws ServiceUnavailable
@@ -310,16 +371,24 @@ class Client
      */
     public function getPaywall(): GetPaywallResponse
     {
-        return new GetPaywallResponse(
-            $this->sendRequest((new GetPaywallRequest())->setSerializer($this->serializer)),
-            $this->serializer
-        );
+        try {
+            $request = (new GetPaywallRequest())->setSerializer($this->serializer);
+
+            return new GetPaywallResponse($this->sendRequest($request), $this->serializer);
+        } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
+            if (isset($request)) {
+                $e->setRequestBody($request->getRequestBody() ?? '');
+            }
+
+            throw $e;
+        }
     }
 
     /**
      * Returns a list of paywall fragments.
      *
      * @throws RequestValidationError
+     * @throws ResponseValidationError
      * @throws AuthorizationError
      * @throws AccessDenied
      * @throws ServiceUnavailable
@@ -327,10 +396,17 @@ class Client
      */
     public function getPaywallFragments(): GetPaywallFragmentsResponse
     {
-        return new GetPaywallFragmentsResponse(
-            $this->sendRequest((new GetPaywallFragmentsRequest())->setSerializer($this->serializer)),
-            $this->serializer
-        );
+        try {
+            $request = (new GetPaywallFragmentsRequest())->setSerializer($this->serializer);
+
+            return new GetPaywallFragmentsResponse($this->sendRequest($request), $this->serializer);
+        } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
+            if (isset($request)) {
+                $e->setRequestBody($request->getRequestBody() ?? '');
+            }
+
+            throw $e;
+        }
     }
 
     protected function getApiHost(): string
@@ -340,6 +416,7 @@ class Client
 
     /**
      * @throws RequestValidationError
+     * @throws ResponseValidationError
      * @throws ClientExceptionInterface
      */
     protected function sendRequest(Request $request): ResponseInterface

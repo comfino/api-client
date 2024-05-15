@@ -11,13 +11,11 @@ use Psr\Http\Message\ResponseInterface;
 
 abstract class Response
 {
-    /** @var SerializerInterface */
-    protected SerializerInterface $serializer;
-
     /**
      * Extracts API response data from input PSR-7 compatible HTTP response object.
      *
      * @param ResponseInterface $response
+     * @param SerializerInterface $serializer
      * @return Response
      * @throws RequestValidationError
      * @throws ResponseValidationError
@@ -25,20 +23,32 @@ abstract class Response
      * @throws AccessDenied
      * @throws ServiceUnavailable
      */
-    final public function initFromPsrResponse(ResponseInterface $response): self
+    final public function initFromPsrResponse(ResponseInterface $response, SerializerInterface $serializer): self
     {
-        $responseBody = $response->getBody();
-        $responseBody->rewind();
+        $response->getBody()->rewind();
+        $responseBody = $response->getBody()->getContents();
 
         if (strpos($response->getHeader('Content-Type')[0], 'application/json') !== false) {
-            $deserializedResponseBody = $this->deserializeResponseBody($responseBody->getContents());
+            try {
+                $deserializedResponseBody = $this->deserializeResponseBody($responseBody, $serializer);
+            } catch (ResponseValidationError $e) {
+                $e->setUrl($response->getBody()->getMetadata('uri'));
+                $e->setResponseBody($responseBody);
+
+                throw $e;
+            }
         } else {
-            $deserializedResponseBody = $responseBody->getContents();
+            $deserializedResponseBody = $responseBody;
         }
 
         if ($response->getStatusCode() >= 500) {
             throw new ServiceUnavailable(
-                "Comfino API service is unavailable: {$response->getReasonPhrase()} [{$response->getStatusCode()}]"
+                "Comfino API service is unavailable: {$response->getReasonPhrase()} [{$response->getStatusCode()}]",
+                0,
+                null,
+                $response->getBody()->getMetadata('uri'),
+                '',
+                $responseBody
             );
         }
 
@@ -49,15 +59,21 @@ abstract class Response
                         $this->getErrorMessage(
                             $deserializedResponseBody,
                             "Invalid request data: {$response->getReasonPhrase()} [{$response->getStatusCode()}]"
-                        )
+                        ),
+                        0,
+                        null,
+                        $response->getBody()->getMetadata('uri')
                     );
 
                 case 401:
                     throw new AuthorizationError(
                         $this->getErrorMessage(
                             $deserializedResponseBody,
-                            "Invalid credentials: {$response->getReasonPhrase()} [{$response->getStatusCode()}]"
-                        )
+                            "Invalid credentials: {$response->getReasonPhrase()} [{$response->getStatusCode()}]",
+                        ),
+                        0,
+                        null,
+                        $response->getBody()->getMetadata('uri')
                     );
 
                 case 402:
@@ -68,36 +84,56 @@ abstract class Response
                         $this->getErrorMessage(
                             $deserializedResponseBody,
                             "Access denied: {$response->getReasonPhrase()} [{$response->getStatusCode()}]"
-                        )
+                        ),
+                        0,
+                        null,
+                        $response->getBody()->getMetadata('uri')
                     );
 
                 default:
                     throw new RequestValidationError(
-                        "Invalid request data: {$response->getReasonPhrase()} [{$response->getStatusCode()}]"
+                        "Invalid request data: {$response->getReasonPhrase()} [{$response->getStatusCode()}]",
+                        0,
+                        null,
+                        $response->getBody()->getMetadata('uri')
                     );
             }
         }
 
         if (($errorMessage = $this->getErrorMessage($deserializedResponseBody)) !== null) {
-            throw new RequestValidationError($errorMessage);
+            throw new RequestValidationError(
+                $errorMessage,
+                0,
+                null,
+                $response->getBody()->getMetadata('uri')
+            );
         }
 
-        $this->processResponseBody($deserializedResponseBody);
+        try {
+            $this->processResponseBody($deserializedResponseBody);
+        } catch (ResponseValidationError $e) {
+            $e->setUrl($response->getBody()->getMetadata('uri'));
+            $e->setResponseBody($responseBody);
+
+            throw $e;
+        }
 
         return $this;
     }
 
     /**
      * Fills response object properties with data from deserialized API response array.
+     *
+     * @throws ResponseValidationError
      */
     abstract protected function processResponseBody(array|string|bool|null $deserializedResponseBody): void;
 
     /**
      * @throws ResponseValidationError
      */
-    private function deserializeResponseBody(string $responseBody): array|string|bool|null
+    private function deserializeResponseBody(string $responseBody, SerializerInterface $serializer): array|string|bool|null
     {
-        return !empty($responseBody) ? $this->serializer->unserialize($responseBody) : null;
+        return !empty($responseBody) ? $serializer->unserialize($responseBody) : null;
     }
 
     private function getErrorMessage(array|string|bool|null $deserializedResponseBody, ?string $defaultMessage = null): ?string
