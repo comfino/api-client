@@ -360,8 +360,10 @@ class Client
     }
 
     /**
-     * Returns a complete paywall page.
+     * Returns a complete paywall page with list of financial products according to the specified criteria.
      *
+     * @param LoanQueryCriteria $queryCriteria
+     * @return GetPaywallResponse
      * @throws RequestValidationError
      * @throws ResponseValidationError
      * @throws AuthorizationError
@@ -369,10 +371,10 @@ class Client
      * @throws ServiceUnavailable
      * @throws ClientExceptionInterface
      */
-    public function getPaywall(): GetPaywallResponse
+    public function getPaywall(LoanQueryCriteria $queryCriteria): GetPaywallResponse
     {
         try {
-            $request = (new GetPaywallRequest())->setSerializer($this->serializer);
+            $request = (new GetPaywallRequest($queryCriteria))->setSerializer($this->serializer);
 
             return new GetPaywallResponse($this->sendRequest($request), $this->serializer);
         } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
