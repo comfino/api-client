@@ -30,6 +30,7 @@ use Comfino\Api\Response\GetWidgetTypes as GetWidgetTypesResponse;
 use Comfino\Api\Response\IsShopAccountActive as IsShopAccountActiveResponse;
 use Comfino\Api\Serializer\Json as JsonSerializer;
 use Comfino\FinancialProduct\ProductTypesListTypeEnum;
+use Comfino\Paywall\PaywallViewTypeEnum;
 use Comfino\Shop\Order\OrderInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -363,6 +364,7 @@ class Client
      * Returns a complete paywall page with list of financial products according to the specified criteria.
      *
      * @param LoanQueryCriteria $queryCriteria
+     * @param PaywallViewTypeEnum|null $viewType
      * @return GetPaywallResponse
      * @throws RequestValidationError
      * @throws ResponseValidationError
@@ -371,10 +373,10 @@ class Client
      * @throws ServiceUnavailable
      * @throws ClientExceptionInterface
      */
-    public function getPaywall(LoanQueryCriteria $queryCriteria): GetPaywallResponse
+    public function getPaywall(LoanQueryCriteria $queryCriteria, ?PaywallViewTypeEnum $viewType = null): GetPaywallResponse
     {
         try {
-            $request = (new GetPaywallRequest($queryCriteria))->setSerializer($this->serializer);
+            $request = (new GetPaywallRequest($queryCriteria, $viewType))->setSerializer($this->serializer);
 
             return new GetPaywallResponse($this->sendRequest($request), $this->serializer);
         } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
