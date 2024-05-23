@@ -60,7 +60,7 @@ class CreateOrder extends Request
                 'name' => 'Korekta',
                 'quantity' => 1,
                 'price' => (int) ($cart->getTotalAmount() - $cartTotalWithDelivery),
-                'category' => 'CORRECTION',
+                'category' => 'ADDITIONAL_FEE',
             ];
         }
 
