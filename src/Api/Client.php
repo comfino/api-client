@@ -102,6 +102,16 @@ class Client
     }
 
     /**
+     * Returns current API language.
+     *
+     * @return string Language code (eg: pl, en)
+     */
+    public function getApiLanguage(): string
+    {
+        return $this->apiLanguage;
+    }
+
+    /**
      * Selects current API language.
      *
      * @param string $language Language code (eg: pl, en)
