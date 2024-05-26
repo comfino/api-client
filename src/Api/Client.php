@@ -123,6 +123,16 @@ class Client
     }
 
     /**
+     * Returns current API host.
+     *
+     * @return string
+     */
+    public function getApiHost(): string
+    {
+        return $this->customApiHost ?? ($this->isSandboxMode ? self::SANDBOX_HOST : self::PRODUCTION_HOST);
+    }
+
+    /**
      * Sets custom API host.
      *
      * @param string|null $host Custom API host
@@ -421,11 +431,6 @@ class Client
 
             throw $e;
         }
-    }
-
-    protected function getApiHost(): string
-    {
-        return $this->customApiHost ?? ($this->isSandboxMode ? self::SANDBOX_HOST : self::PRODUCTION_HOST);
     }
 
     /**
