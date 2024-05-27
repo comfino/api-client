@@ -102,6 +102,16 @@ class Client
     }
 
     /**
+     * Returns current API key.
+     *
+     * @return string
+     */
+    public function getApiKey(): string
+    {
+        return $this->apiKey;
+    }
+
+    /**
      * Returns current API language.
      *
      * @return string Language code (eg: pl, en)
