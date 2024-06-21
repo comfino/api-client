@@ -72,7 +72,7 @@ class Client
         protected readonly RequestFactoryInterface $requestFactory,
         protected readonly StreamFactoryInterface $streamFactory,
         protected readonly ClientInterface $client,
-        protected readonly ?string $apiKey,
+        protected ?string $apiKey,
         protected int $apiVersion = 1,
         protected ?SerializerInterface $serializer = null
     ) {
@@ -109,6 +109,17 @@ class Client
     public function getApiKey(): string
     {
         return $this->apiKey;
+    }
+
+    /**
+     * Sets current API key.
+     *
+     * @param string $apiKey API key
+     * @return void
+     */
+    public function setApiKey(string $apiKey): void
+    {
+        $this->apiKey = $apiKey;
     }
 
     /**
