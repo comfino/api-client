@@ -11,6 +11,9 @@ use Psr\Http\Message\ResponseInterface;
 
 abstract class Response
 {
+    /** @var string[] */
+    protected array $headers = [];
+
     /**
      * Extracts API response data from input PSR-7 compatible HTTP response object.
      *
@@ -29,7 +32,7 @@ abstract class Response
         $response->getBody()->rewind();
         $responseBody = $response->getBody()->getContents();
 
-        if (strpos($response->getHeader('Content-Type')[0], 'application/json') !== false) {
+        if ($response->hasHeader('Content-Type') && strpos($response->getHeader('Content-Type')[0], 'application/json') !== false) {
             try {
                 $deserializedResponseBody = $this->deserializeResponseBody($responseBody, $serializer);
             } catch (ResponseValidationError $e) {
@@ -40,6 +43,12 @@ abstract class Response
             }
         } else {
             $deserializedResponseBody = $responseBody;
+        }
+
+        $this->headers = [];
+
+        foreach ($response->getHeaders() as $headerName => $headerValues) {
+            $this->headers[$headerName] = end($headerValues);
         }
 
         if ($response->getStatusCode() >= 500) {
@@ -120,6 +129,16 @@ abstract class Response
         }
 
         return $this;
+    }
+
+    /**
+     * Returns response HTTP headers as associative array ['headerName' => 'headerValue'].
+     *
+     * @return string[]
+     */
+    final public function getHeaders(): array
+    {
+        return $this->headers;
     }
 
     /**
