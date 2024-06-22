@@ -142,6 +142,50 @@ abstract class Response
     }
 
     /**
+     * Checks if specified response HTTP header exists (case-insensitive).
+     *
+     * @param string $headerName
+     *
+     * @return bool
+     */
+    final public function hasHeader(string $headerName): bool
+    {
+        if (isset($this->headers[$headerName])) {
+            return true;
+        }
+
+        foreach ($this->headers as $responseHeaderName => $headerValue) {
+            if (strcasecmp($responseHeaderName, $headerName) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns specified response HTTP header (case-insensitive) or default value if it does not exist.
+     *
+     * @param string $headerName
+     * @param string|null $defaultValue
+     * @return string|null
+     */
+    final public function getHeader(string $headerName, ?string $defaultValue = null): ?string
+    {
+        if (isset($this->headers[$headerName])) {
+            return $this->headers[$headerName];
+        }
+
+        foreach ($this->headers as $responseHeaderName => $headerValue) {
+            if (strcasecmp($responseHeaderName, $headerName) === 0) {
+                return $headerValue;
+            }
+        }
+
+        return $defaultValue;
+    }
+
+    /**
      * Fills response object properties with data from deserialized API response array.
      *
      * @throws ResponseValidationError
