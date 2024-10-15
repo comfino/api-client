@@ -287,12 +287,14 @@ trait ClientTestTrait
             new LoanTypeEnum(LoanTypeEnum::PAY_LATER),
             new LoanTypeEnum(LoanTypeEnum::CONVENIENT_INSTALLMENTS),
             new LoanTypeEnum(LoanTypeEnum::COMPANY_BNPL),
+            new LoanTypeEnum(LoanTypeEnum::LEASING),
         ];
         $productTypesWithNames = [
             'INSTALLMENTS_ZERO_PERCENT' => 'Raty zero procent',
             'PAY_LATER' => 'Zapłać później',
             'CONVENIENT_INSTALLMENTS' => 'Niskie raty',
             'COMPANY_BNPL' => 'Odroczone płatności dla firm',
+            'LEASING' => 'Leasing',
         ];
         $listType = new ProductTypesListTypeEnum(ProductTypesListTypeEnum::LIST_TYPE_PAYWALL);
 
@@ -348,8 +350,8 @@ trait ClientTestTrait
     {
         $paywallPageContents = 'PAYWALL_PAGE_CONTENTS';
 
-        $apiClient = $this->initApiClient('/v1/shop-plugin-paywall', 'GET', null, null, $paywallPageContents, 'API-KEY', false, 200, 'text/html');
-        $response = $apiClient->getPaywall();
+        $apiClient = $this->initApiClient('/v1/shop-plugin-paywall', 'GET', ['loanAmount' => 100_00], null, $paywallPageContents, 'API-KEY', false, 200, 'text/html');
+        $response = $apiClient->getPaywall(new LoanQueryCriteria(100_00));
 
         $this->assertEquals($paywallPageContents, $response->paywallPage);
     }

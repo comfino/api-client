@@ -19,9 +19,9 @@ abstract class Request
     /** @var string */
     private string $apiEndpointPath;
     /** @var string[]|null */
-    private ?array $requestHeaders;
+    private ?array $requestHeaders = null;
     /** @var string[]|null */
-    private ?array $requestParams;
+    private ?array $requestParams = null;
     /** @var string|null */
     private ?string $requestUri = null;
     /** @var string|null */
