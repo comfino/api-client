@@ -12,14 +12,19 @@ class GetPaywall extends Request
     {
         $this->setRequestMethod('GET');
         $this->setApiEndpointPath('shop-plugin-paywall');
-        $this->setRequestParams(array_filter([
-            'loanAmount' => $queryCriteria->loanAmount,
-            'loanTerm' => $queryCriteria->loanTerm,
-            'loanType' => $queryCriteria->loanType,
-            'productTypes' => ($queryCriteria->productTypes !== null ? implode(',', $queryCriteria->productTypes) : null),
-            'taxId' => $queryCriteria->taxId,
-            'viewType' => ($viewType !== null ? (string) $viewType : null),
-        ], static fn ($value): bool => $value !== null));
+        $this->setRequestParams(
+            array_filter(
+                [
+                    'loanAmount' => $queryCriteria->loanAmount,
+                    'loanTerm' => $queryCriteria->loanTerm,
+                    'loanType' => $queryCriteria->loanType,
+                    'productTypes' => ($queryCriteria->productTypes !== null ? implode(',', $queryCriteria->productTypes) : null),
+                    'taxId' => $queryCriteria->taxId,
+                    'viewType' => ($viewType !== null ? (string) $viewType : null),
+                ],
+                static fn ($value): bool => $value !== null
+            )
+        );
     }
 
     /**

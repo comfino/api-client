@@ -17,13 +17,18 @@ class GetFinancialProducts extends Request
     {
         $this->setRequestMethod('GET');
         $this->setApiEndpointPath('financial-products');
-        $this->setRequestParams(array_filter([
-            'loanAmount' => $queryCriteria->loanAmount,
-            'loanTerm' => $queryCriteria->loanTerm,
-            'loanType' => $queryCriteria->loanType,
-            'productTypes' => $queryCriteria->productTypes,
-            'taxId' => $queryCriteria->taxId,
-        ], static fn ($value): bool => $value !== null));
+        $this->setRequestParams(
+            array_filter(
+                [
+                    'loanAmount' => $queryCriteria->loanAmount,
+                    'loanTerm' => $queryCriteria->loanTerm,
+                    'loanType' => $queryCriteria->loanType,
+                    'productTypes' => $queryCriteria->productTypes,
+                    'taxId' => $queryCriteria->taxId,
+                ],
+                static fn ($value): bool => $value !== null
+            )
+        );
     }
 
     /**
