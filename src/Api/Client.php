@@ -15,7 +15,6 @@ use Comfino\Api\Request\GetFinancialProducts as GetFinancialProductsRequest;
 use Comfino\Api\Request\GetOrder as GetOrderRequest;
 use Comfino\Api\Request\GetPaywall as GetPaywallRequest;
 use Comfino\Api\Request\GetPaywallFragments as GetPaywallFragmentsRequest;
-use Comfino\Api\Request\GetPaywallItemDetails;
 use Comfino\Api\Request\GetPaywallItemDetails as GetPaywallItemDetailsRequest;
 use Comfino\Api\Request\GetProductTypes as GetProductTypesRequest;
 use Comfino\Api\Request\GetWidgetKey as GetWidgetKeyRequest;
@@ -451,7 +450,7 @@ class Client
     public function getPaywallItemDetails(int $loanAmount, LoanTypeEnum $loanType, CartInterface $cart): GetPaywallItemDetailsResponse
     {
         try {
-            $request = (new GetPaywallItemDetails($loanAmount, $loanType, $cart))->setSerializer($this->serializer);
+            $request = (new GetPaywallItemDetailsRequest($loanAmount, $loanType, $cart))->setSerializer($this->serializer);
 
             return new GetPaywallItemDetailsResponse($request, $this->sendRequest($request), $this->serializer);
         } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
