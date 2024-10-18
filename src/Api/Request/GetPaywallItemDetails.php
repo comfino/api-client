@@ -15,7 +15,7 @@ class GetPaywallItemDetails extends Request
     {
         $this->setRequestMethod('POST');
         $this->setApiEndpointPath('shop-plugin-paywall-product-details');
-        $this->setRequestParams(['loanAmount' => $loanAmount, 'loanTypeSelected' => $loanType]);
+        $this->setRequestParams(['loanAmount' => $loanAmount, 'loanTypeSelected' => (string) $loanType]);
     }
 
     /**
