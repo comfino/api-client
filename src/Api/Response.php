@@ -67,6 +67,7 @@ abstract class Response
                 case 400:
                     throw new RequestValidationError(
                         $this->getErrorMessage(
+                            $response->getStatusCode(),
                             $deserializedResponseBody,
                             "Invalid request data: {$response->getReasonPhrase()} [{$response->getStatusCode()}]"
                         ),
@@ -78,6 +79,7 @@ abstract class Response
                 case 401:
                     throw new AuthorizationError(
                         $this->getErrorMessage(
+                            $response->getStatusCode(),
                             $deserializedResponseBody,
                             "Invalid credentials: {$response->getReasonPhrase()} [{$response->getStatusCode()}]",
                         ),
@@ -92,6 +94,7 @@ abstract class Response
                 case 405:
                     throw new AccessDenied(
                         $this->getErrorMessage(
+                            $response->getStatusCode(),
                             $deserializedResponseBody,
                             "Access denied: {$response->getReasonPhrase()} [{$response->getStatusCode()}]"
                         ),
@@ -110,7 +113,7 @@ abstract class Response
             }
         }
 
-        if (($errorMessage = $this->getErrorMessage($deserializedResponseBody)) !== null) {
+        if (($errorMessage = $this->getErrorMessage($response->getStatusCode(), $deserializedResponseBody)) !== null) {
             throw new RequestValidationError(
                 $errorMessage,
                 0,
@@ -200,7 +203,7 @@ abstract class Response
         return !empty($responseBody) ? $serializer->unserialize($responseBody) : null;
     }
 
-    private function getErrorMessage(array|string|bool|null $deserializedResponseBody, ?string $defaultMessage = null): ?string
+    private function getErrorMessage(int $statusCode, array|string|bool|null $deserializedResponseBody, ?string $defaultMessage = null): ?string
     {
         if (!is_array($deserializedResponseBody)) {
             return $defaultMessage;
@@ -216,6 +219,10 @@ abstract class Response
             );
         } elseif (isset($deserializedResponseBody['message'])) {
             $errorMessages = [$deserializedResponseBody['message']];
+        } elseif ($statusCode >= 400) {
+            foreach ($deserializedResponseBody as $errorFieldName => $errorMessage) {
+                $errorMessages[] = "$errorFieldName: $errorMessage";
+            }
         }
 
         return count($errorMessages) ? implode("\n", $errorMessages) : $defaultMessage;
