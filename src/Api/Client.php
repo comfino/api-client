@@ -60,6 +60,8 @@ class Client
     protected ?string $customApiHost = null;
     /** @var string|null */
     protected ?string $customUserAgent = null;
+    /** @var string[] */
+    protected array $customHeaders = [];
     /** @var bool */
     protected bool $isSandboxMode = false;
 
@@ -177,6 +179,18 @@ class Client
     public function setCustomUserAgent(?string $userAgent): void
     {
         $this->customUserAgent = $userAgent;
+    }
+
+    /**
+     * Adds a custom HTTP header to the API request call.
+     *
+     * @param string $headerName
+     * @param string $headerValue
+     * @return void
+     */
+    public function addCustomHeader(string $headerName, string $headerValue): void
+    {
+        $this->customHeaders[$headerName] = $headerValue;
     }
 
     public function enableSandboxMode(): void
@@ -499,10 +513,16 @@ class Client
             $this->streamFactory,
             $this->getApiHost(),
             $this->apiVersion
-        )->withHeader('Content-Type', 'application/json')
-            ->withHeader('Api-Language', $this->apiLanguage)
-            ->withHeader('User-Agent', $this->getUserAgent()
-        );
+        )
+        ->withHeader('Content-Type', 'application/json')
+        ->withHeader('Api-Language', $this->apiLanguage)
+        ->withHeader('User-Agent', $this->getUserAgent());
+
+        if (count($this->customHeaders) > 0) {
+            foreach ($this->customHeaders as $headerName => $headerValue) {
+                $apiRequest = $apiRequest->withHeader($headerName, $headerValue);
+            }
+        }
 
         return $this->client->sendRequest(
             !empty($this->apiKey) ? $apiRequest->withHeader('Api-Key', $this->apiKey) : $apiRequest
