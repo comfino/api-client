@@ -2,29 +2,8 @@
 
 namespace Comfino\Shop\Order\Cart;
 
-class Product implements ProductInterface
+readonly class Product implements ProductInterface
 {
-    /** @var string */
-    private string $name;
-    /** @var int */
-    private int $price;
-    /** @var int|null */
-    private ?int $netPrice;
-    /** @var int|null */
-    private ?int $taxRate;
-    /** @var int|null */
-    private ?int $taxValue;
-    /** @var string|null */
-    private ?string $id;
-    /** @var string|null */
-    private ?string $category;
-    /** @var string|null */
-    private ?string $ean;
-    /** @var string|null */
-    private ?string $photoUrl;
-    /** @var int[]|null */
-    private ?array $categoryIds;
-
     /**
      * @param string $name
      * @param int $price
@@ -38,28 +17,17 @@ class Product implements ProductInterface
      * @param int|null $taxValue
      */
     public function __construct(
-        string $name,
-        int $price,
-        ?string $id = null,
-        ?string $category = null,
-        ?string $ean = null,
-        ?string $photoUrl = null,
-        ?array $categoryIds = null,
-        ?int $netPrice = null,
-        ?int $taxRate = null,
-        ?int $taxValue = null
-    ) {
-        $this->name = $name;
-        $this->price = $price;
-        $this->id = $id;
-        $this->category = $category;
-        $this->ean = $ean;
-        $this->photoUrl = $photoUrl;
-        $this->categoryIds = $categoryIds;
-        $this->netPrice = $netPrice;
-        $this->taxRate = $taxRate;
-        $this->taxValue = $taxValue;
-    }
+        private string $name,
+        private int $price,
+        private ?string $id = null,
+        private ?string $category = null,
+        private ?string $ean = null,
+        private ?string $photoUrl = null,
+        private ?array $categoryIds = null,
+        private ?int $netPrice = null,
+        private ?int $taxRate = null,
+        private ?int $taxValue = null
+    ) { }
 
     /**
      * @inheritDoc

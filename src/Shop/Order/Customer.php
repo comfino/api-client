@@ -4,27 +4,8 @@ namespace Comfino\Shop\Order;
 
 use Comfino\Shop\Order\Customer\AddressInterface;
 
-class Customer implements CustomerInterface
+readonly class Customer implements CustomerInterface
 {
-    /** @var string */
-    private string $firstName;
-    /** @var string */
-    private string $lastName;
-    /** @var string */
-    private string $email;
-    /** @var string */
-    private string $phoneNumber;
-    /** @var string */
-    private string $ip;
-    /** @var string|null */
-    private ?string $taxId;
-    /** @var bool|null */
-    private ?bool $isRegular;
-    /** @var bool|null */
-    private ?bool $isLogged;
-    /** @var AddressInterface|null */
-    private ?AddressInterface $address;
-
     /**
      * @param string $firstName
      * @param string $lastName
@@ -37,26 +18,16 @@ class Customer implements CustomerInterface
      * @param AddressInterface|null $address
      */
     public function __construct(
-        string $firstName,
-        string $lastName,
-        string $email,
-        string $phoneNumber,
-        string $ip,
-        ?string $taxId = null,
-        ?bool $isRegular = null,
-        ?bool $isLogged = null,
-        ?AddressInterface $address = null
-    ) {
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->email = $email;
-        $this->phoneNumber = $phoneNumber;
-        $this->ip = $ip;
-        $this->taxId = $taxId;
-        $this->isRegular = $isRegular;
-        $this->isLogged = $isLogged;
-        $this->address = $address;
-    }
+        private string $firstName,
+        private string $lastName,
+        private string $email,
+        private string $phoneNumber,
+        private string $ip,
+        private ?string $taxId = null,
+        private ?bool $isRegular = null,
+        private ?bool $isLogged = null,
+        private ?AddressInterface $address = null
+    ) { }
 
     /**
      * @inheritDoc

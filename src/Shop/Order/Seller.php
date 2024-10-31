@@ -2,17 +2,13 @@
 
 namespace Comfino\Shop\Order;
 
-class Seller implements SellerInterface
+readonly class Seller implements SellerInterface
 {
-    /** @var string|null */
-    private ?string $taxId;
-
     /**
      * @param string|null $taxId
      */
-    public function __construct(?string $taxId)
+    public function __construct(private ?string $taxId)
     {
-        $this->taxId = $taxId;
     }
 
     /**

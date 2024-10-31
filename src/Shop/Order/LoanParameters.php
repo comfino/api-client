@@ -4,30 +4,20 @@ namespace Comfino\Shop\Order;
 
 use Comfino\Api\Dto\Payment\LoanTypeEnum;
 
-class LoanParameters implements LoanParametersInterface
+readonly class LoanParameters implements LoanParametersInterface
 {
-    /** @var int */
-    private int $amount;
-    /** @var int|null */
-    private ?int $term;
-    /** @var LoanTypeEnum|null */
-    private ?LoanTypeEnum $type;
-    /** @var LoanTypeEnum[]|null */
-    private ?array $allowedProductTypes;
-
     /**
      * @param int $amount
      * @param int|null $term
      * @param LoanTypeEnum|null $type
      * @param LoanTypeEnum[]|null $allowedProductTypes
      */
-    public function __construct(int $amount, ?int $term = null, ?LoanTypeEnum $type = null, ?array $allowedProductTypes = null)
-    {
-        $this->amount = $amount;
-        $this->term = $term;
-        $this->type = $type;
-        $this->allowedProductTypes = $allowedProductTypes;
-    }
+    public function __construct(
+        private int $amount,
+        private ?int $term = null,
+        private ?LoanTypeEnum $type = null,
+        private ?array $allowedProductTypes = null
+    ) { }
 
     /**
      * @inheritDoc

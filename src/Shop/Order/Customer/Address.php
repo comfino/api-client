@@ -2,21 +2,8 @@
 
 namespace Comfino\Shop\Order\Customer;
 
-class Address implements AddressInterface
+readonly class Address implements AddressInterface
 {
-    /** @var string|null */
-    private ?string $street;
-    /** @var string|null */
-    private ?string $buildingNumber;
-    /** @var string|null */
-    private ?string $apartmentNumber;
-    /** @var string|null */
-    private ?string $postalCode;
-    /** @var string|null */
-    private ?string $city;
-    /** @var string|null */
-    private ?string $countryCode;
-
     /**
      * @param string|null $street
      * @param string|null $buildingNumber
@@ -26,20 +13,13 @@ class Address implements AddressInterface
      * @param string|null $countryCode
      */
     public function __construct(
-        ?string $street = null,
-        ?string $buildingNumber = null,
-        ?string $apartmentNumber = null,
-        ?string $postalCode = null,
-        ?string $city = null,
-        ?string $countryCode = null
-    ) {
-        $this->street = $street;
-        $this->buildingNumber = $buildingNumber;
-        $this->apartmentNumber = $apartmentNumber;
-        $this->postalCode = $postalCode;
-        $this->city = $city;
-        $this->countryCode = $countryCode;
-    }
+        private ?string $street = null,
+        private ?string $buildingNumber = null,
+        private ?string $apartmentNumber = null,
+        private ?string $postalCode = null,
+        private ?string $city = null,
+        private ?string $countryCode = null
+    ) { }
 
     /**
      * @inheritDoc

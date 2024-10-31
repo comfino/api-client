@@ -2,29 +2,8 @@
 
 namespace Comfino\Shop\Order;
 
-use Comfino\Shop\Order\LoanParametersInterface;
-
-class Order implements OrderInterface
+readonly class Order implements OrderInterface
 {
-    /** @var string */
-    private string $id;
-    /** @var string|null */
-    private ?string $notifyUrl;
-    /** @var string */
-    private string $returnUrl;
-    /** @var LoanParametersInterface */
-    private LoanParametersInterface $loanParameters;
-    /** @var CartInterface */
-    private CartInterface $cart;
-    /** @var CustomerInterface */
-    private CustomerInterface $customer;
-    /** @var SellerInterface|null */
-    private ?SellerInterface $seller;
-    /** @var string|null */
-    private ?string $accountNumber;
-    /** @var string|null */
-    private ?string $transferTitle;
-
     /**
      * @param string $id
      * @param string $returnUrl
@@ -37,26 +16,16 @@ class Order implements OrderInterface
      * @param string|null $transferTitle
      */
     public function __construct(
-        string $id,
-        string $returnUrl,
-        LoanParametersInterface $loanParameters,
-        CartInterface $cart,
-        CustomerInterface $customer,
-        ?string $notifyUrl = null,
-        ?SellerInterface $seller = null,
-        ?string $accountNumber = null,
-        ?string $transferTitle = null
-    ) {
-        $this->id = $id;
-        $this->notifyUrl = $notifyUrl;
-        $this->returnUrl = $returnUrl;
-        $this->loanParameters = $loanParameters;
-        $this->cart = $cart;
-        $this->customer = $customer;
-        $this->seller = $seller;
-        $this->accountNumber = $accountNumber;
-        $this->transferTitle = $transferTitle;
-    }
+        private string $id,
+        private string $returnUrl,
+        private LoanParametersInterface $loanParameters,
+        private CartInterface $cart,
+        private CustomerInterface $customer,
+        private ?string $notifyUrl = null,
+        private ?SellerInterface $seller = null,
+        private ?string $accountNumber = null,
+        private ?string $transferTitle = null
+    ) { }
 
     /**
      * @inheritDoc

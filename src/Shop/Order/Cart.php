@@ -4,30 +4,26 @@ namespace Comfino\Shop\Order;
 
 use Comfino\Shop\Order\Cart\CartItemInterface;
 
-class Cart implements CartInterface
+readonly class Cart implements CartInterface
 {
-    /** @var CartItemInterface[] */
-    private array $items;
-    /** @var int */
-    private int $totalAmount;
-    /** @var int|null */
-    private ?int $deliveryCost;
-    /** @var string|null */
-    private ?string $category;
-
     /**
      * @param CartItemInterface[] $items
      * @param int $totalAmount
      * @param int|null $deliveryCost
+     * @param int|null $netDeliveryCost
+     * @param int|null $deliveryCostTaxRate
+     * @param int|null $deliveryCostTaxValue
      * @param string|null $category
      */
-    public function __construct(array $items, int $totalAmount, ?int $deliveryCost = null, ?string $category = null)
-    {
-        $this->items = $items;
-        $this->totalAmount = $totalAmount;
-        $this->deliveryCost = $deliveryCost;
-        $this->category = $category;
-    }
+    public function __construct(
+        private array $items,
+        private int $totalAmount,
+        private ?int $deliveryCost = null,
+        private ?int $netDeliveryCost = null,
+        private ?int $deliveryCostTaxRate = null,
+        private ?int $deliveryCostTaxValue = null,
+        private ?string $category = null
+    ) { }
 
     /**
      * @inheritDoc
@@ -51,6 +47,21 @@ class Cart implements CartInterface
     public function getDeliveryCost(): ?int
     {
         return $this->deliveryCost;
+    }
+
+    public function getNetDeliveryCost(): ?int
+    {
+        return $this->netDeliveryCost;
+    }
+
+    public function getDeliveryCostTaxRate(): ?int
+    {
+        return $this->deliveryCostTaxRate;
+    }
+
+    public function getDeliveryCostTaxValue(): ?int
+    {
+        return $this->deliveryCostTaxValue;
     }
 
     /**
