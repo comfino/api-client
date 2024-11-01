@@ -77,7 +77,7 @@ class Client
     public function __construct(
         protected readonly RequestFactoryInterface $requestFactory,
         protected readonly StreamFactoryInterface $streamFactory,
-        protected readonly ClientInterface $client,
+        protected ClientInterface $client,
         protected ?string $apiKey,
         protected int $apiVersion = 1,
         protected ?SerializerInterface $serializer = null
@@ -201,6 +201,11 @@ class Client
     public function disableSandboxMode(): void
     {
         $this->isSandboxMode = false;
+    }
+
+    public function setClient(ClientInterface $client): void
+    {
+        $this->client = $client;
     }
 
     /**
