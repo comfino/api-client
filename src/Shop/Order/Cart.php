@@ -10,7 +10,7 @@ readonly class Cart implements CartInterface
      * @param CartItemInterface[] $items
      * @param int $totalAmount
      * @param int|null $deliveryCost
-     * @param int|null $netDeliveryCost
+     * @param int|null $deliveryNetCost
      * @param int|null $deliveryCostTaxRate
      * @param int|null $deliveryCostTaxValue
      * @param string|null $category
@@ -19,7 +19,7 @@ readonly class Cart implements CartInterface
         private array $items,
         private int $totalAmount,
         private ?int $deliveryCost = null,
-        private ?int $netDeliveryCost = null,
+        private ?int $deliveryNetCost = null,
         private ?int $deliveryCostTaxRate = null,
         private ?int $deliveryCostTaxValue = null,
         private ?string $category = null
@@ -49,9 +49,9 @@ readonly class Cart implements CartInterface
         return $this->deliveryCost;
     }
 
-    public function getNetDeliveryCost(): ?int
+    public function getDeliveryNetCost(): ?int
     {
-        return $this->netDeliveryCost;
+        return $this->deliveryNetCost;
     }
 
     public function getDeliveryCostTaxRate(): ?int
