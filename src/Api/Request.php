@@ -41,7 +41,9 @@ abstract class Request
      * @param StreamFactoryInterface $streamFactory
      * @param string $apiHost
      * @param int $apiVersion
+     *
      * @return RequestInterface
+     *
      * @throws RequestValidationError
      */
     final public function getPsrRequest(
@@ -96,6 +98,7 @@ abstract class Request
 
     /**
      * @return string
+     *
      * @throws RequestValidationError
      */
     final public function __toString(): string
@@ -105,6 +108,7 @@ abstract class Request
 
     /**
      * @param string $method
+     *
      * @return void
      */
     final protected function setRequestMethod(string $method): void
@@ -114,6 +118,7 @@ abstract class Request
 
     /**
      * @param string $apiEndpointPath
+     *
      * @return void
      */
     final protected function setApiEndpointPath(string $apiEndpointPath): void
@@ -123,6 +128,7 @@ abstract class Request
 
     /**
      * @param string[] $requestHeaders
+     *
      * @return void
      */
     final protected function setRequestHeaders(array $requestHeaders): void
@@ -132,6 +138,7 @@ abstract class Request
 
     /**
      * @param string[] $requestParams
+     *
      * @return void
      */
     final protected function setRequestParams(array $requestParams): void
@@ -141,6 +148,7 @@ abstract class Request
 
     /**
      * @return string|null
+     *
      * @throws RequestValidationError
      */
     final protected function serializeRequestBody(): ?string
@@ -151,6 +159,7 @@ abstract class Request
     /**
      * @param string $apiHost
      * @param int $apiVersion
+     *
      * @return string
      */
     final protected function getApiEndpointUri(string $apiHost, int $apiVersion): string

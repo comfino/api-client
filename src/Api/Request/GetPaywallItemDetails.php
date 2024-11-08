@@ -11,6 +11,11 @@ class GetPaywallItemDetails extends Request
 {
     use CartTrait;
 
+    /**
+     * @param int $loanAmount
+     * @param LoanTypeEnum $loanType
+     * @param CartInterface $cart
+     */
     public function __construct(int $loanAmount, LoanTypeEnum $loanType, private readonly CartInterface $cart)
     {
         $this->setRequestMethod('POST');

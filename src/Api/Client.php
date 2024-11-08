@@ -11,6 +11,7 @@ use Comfino\Api\Exception\ResponseValidationError;
 use Comfino\Api\Exception\ServiceUnavailable;
 use Comfino\Api\Request\CancelOrder as CancelOrderRequest;
 use Comfino\Api\Request\CreateOrder as CreateOrderRequest;
+use Comfino\Api\Request\GetFinancialProductDetails as GetFinancialProductDetailsRequest;
 use Comfino\Api\Request\GetFinancialProducts as GetFinancialProductsRequest;
 use Comfino\Api\Request\GetOrder as GetOrderRequest;
 use Comfino\Api\Request\GetPaywall as GetPaywallRequest;
@@ -22,6 +23,7 @@ use Comfino\Api\Request\GetWidgetTypes as GetWidgetTypesRequest;
 use Comfino\Api\Request\IsShopAccountActive as IsShopAccountActiveRequest;
 use Comfino\Api\Response\Base as BaseApiResponse;
 use Comfino\Api\Response\CreateOrder as CreateOrderResponse;
+use Comfino\Api\Response\GetFinancialProductDetails as GetFinancialProductDetailsResponse;
 use Comfino\Api\Response\GetFinancialProducts as GetFinancialProductsResponse;
 use Comfino\Api\Response\GetOrder as GetOrderResponse;
 use Comfino\Api\Response\GetPaywall as GetPaywallResponse;
@@ -89,6 +91,7 @@ class Client
      * Sets custom request/response serializer.
      *
      * @param SerializerInterface $serializer
+     *
      * @return void
      */
     public function setSerializer(SerializerInterface $serializer): void
@@ -100,6 +103,7 @@ class Client
      * Selects current API version.
      *
      * @param int $version Desired API version.
+     *
      * @return void
      */
     public function setApiVersion(int $version): void
@@ -121,6 +125,7 @@ class Client
      * Sets current API key.
      *
      * @param string $apiKey API key.
+     *
      * @return void
      */
     public function setApiKey(string $apiKey): void
@@ -142,6 +147,7 @@ class Client
      * Selects current API language.
      *
      * @param string $language Language code (eg: pl, en).
+     *
      * @return void
      */
     public function setApiLanguage(string $language): void
@@ -163,6 +169,7 @@ class Client
      * Sets custom API host.
      *
      * @param string|null $host Custom API host.
+     *
      * @return void
      */
     public function setCustomApiHost(?string $host): void
@@ -174,6 +181,7 @@ class Client
      * Sets custom User-Agent header.
      *
      * @param string|null $userAgent
+     *
      * @return void
      */
     public function setCustomUserAgent(?string $userAgent): void
@@ -186,6 +194,7 @@ class Client
      *
      * @param string $headerName
      * @param string $headerValue
+     *
      * @return void
      */
     public function addCustomHeader(string $headerName, string $headerValue): void
@@ -220,6 +229,7 @@ class Client
      * Checks if registered user shop account is active.
      *
      * @return bool
+     *
      * @throws RequestValidationError
      * @throws ResponseValidationError
      * @throws AuthorizationError
@@ -243,10 +253,42 @@ class Client
     }
 
     /**
+     * Returns a list of financial products according to the specified criteria and calculations result based on passed cart contents.
+     *
+     * @param LoanQueryCriteria $queryCriteria
+     * @param CartInterface $cart
+     *
+     * @return GetFinancialProductDetailsResponse
+     *
+     * @throws RequestValidationError
+     * @throws ResponseValidationError
+     * @throws AuthorizationError
+     * @throws AccessDenied
+     * @throws ServiceUnavailable
+     * @throws ClientExceptionInterface
+     */
+    public function getFinancialProductDetails(LoanQueryCriteria $queryCriteria, CartInterface $cart): GetFinancialProductDetailsResponse
+    {
+        try {
+            $request = (new GetFinancialProductDetailsRequest($queryCriteria, $cart))->setSerializer($this->serializer);
+
+            return new GetFinancialProductDetailsResponse($request, $this->sendRequest($request), $this->serializer);
+        } catch (RequestValidationError | ResponseValidationError | AuthorizationError | AccessDenied | ServiceUnavailable $e) {
+            if (isset($request)) {
+                $e->setRequestBody($request->getRequestBody() ?? '');
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
      * Returns a list of financial products according to the specified criteria.
      *
      * @param LoanQueryCriteria $queryCriteria
+     *
      * @return GetFinancialProductsResponse
+     *
      * @throws RequestValidationError
      * @throws ResponseValidationError
      * @throws AuthorizationError
@@ -273,7 +315,9 @@ class Client
      * Submits a loan application.
      *
      * @param OrderInterface $order Full order data (cart, loan details).
+     *
      * @return CreateOrderResponse
+     *
      * @throws RequestValidationError
      * @throws ResponseValidationError
      * @throws AuthorizationError
@@ -300,7 +344,9 @@ class Client
      * Returns a details of specified loan application.
      *
      * @param string $orderId Loan application ID returned by createOrder action.
+     *
      * @return GetOrderResponse
+     *
      * @throws RequestValidationError
      * @throws ResponseValidationError
      * @throws AuthorizationError
@@ -429,7 +475,9 @@ class Client
      *
      * @param LoanQueryCriteria $queryCriteria List filtering criteria.
      * @param PaywallViewTypeEnum|null $viewType Paywall view type.
+     *
      * @return GetPaywallResponse
+     *
      * @throws RequestValidationError
      * @throws ResponseValidationError
      * @throws AuthorizationError
@@ -458,7 +506,9 @@ class Client
      * @param int $loanAmount Requested loan amount.
      * @param LoanTypeEnum $loanType Financial product type (loan type).
      * @param CartInterface $cart Shopping cart.
+     *
      * @return GetPaywallItemDetailsResponse
+     *
      * @throws RequestValidationError
      * @throws ResponseValidationError
      * @throws AuthorizationError
