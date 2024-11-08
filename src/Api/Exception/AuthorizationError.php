@@ -2,7 +2,9 @@
 
 namespace Comfino\Api\Exception;
 
-class AuthorizationError extends \RuntimeException
+use Comfino\Api\HttpErrorExceptionInterface;
+
+class AuthorizationError extends \RuntimeException implements HttpErrorExceptionInterface
 {
     /** @var string */
     private string $url;
@@ -35,5 +37,10 @@ class AuthorizationError extends \RuntimeException
     public function setRequestBody(string $requestBody): void
     {
         $this->requestBody = $requestBody;
+    }
+
+    public function getStatusCode(): int
+    {
+        return 401;
     }
 }
