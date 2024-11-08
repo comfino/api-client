@@ -39,6 +39,11 @@ class AuthorizationError extends \RuntimeException implements HttpErrorException
         $this->requestBody = $requestBody;
     }
 
+    public function getResponseBody(): string
+    {
+        return '';
+    }
+
     public function getStatusCode(): int
     {
         return 401;

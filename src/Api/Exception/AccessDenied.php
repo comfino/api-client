@@ -39,6 +39,11 @@ class AccessDenied extends \RuntimeException implements HttpErrorExceptionInterf
         $this->requestBody = $requestBody;
     }
 
+    public function getResponseBody(): string
+    {
+        return '';
+    }
+
     public function getStatusCode(): int
     {
         return 403;
