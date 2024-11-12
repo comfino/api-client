@@ -45,5 +45,10 @@ readonly class LoanParameters
         $this->toPay = $toPay;
         $this->loanTerm = $loanTerm;
         $this->rrso = $rrso;
+        $this->initialPaymentValue = $initialPaymentValue;
+        $this->initialPaymentRate = $initialPaymentRate;
+        $this->redemptionPaymentValue = $redemptionPaymentValue;
+        $this->redemptionPaymentRate = $redemptionPaymentRate;
+        $this->interest = $interest;
     }
 }
