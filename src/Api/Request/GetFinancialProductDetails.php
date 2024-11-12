@@ -27,8 +27,8 @@ class GetFinancialProductDetails extends Request
                 [
                     'loanAmount' => $queryCriteria->loanAmount,
                     'loanTerm' => $queryCriteria->loanTerm,
-                    'loanType' => $queryCriteria->loanType,
-                    'productTypes' => $queryCriteria->productTypes,
+                    'loanTypeSelected' => $queryCriteria->loanType,
+                    'productTypes' => ($queryCriteria->productTypes !== null ? implode(',', $queryCriteria->productTypes) : null),
                     'taxId' => $queryCriteria->taxId,
                 ],
                 static fn ($value): bool => $value !== null
