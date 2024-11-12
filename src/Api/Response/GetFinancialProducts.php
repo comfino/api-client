@@ -27,14 +27,14 @@ class GetFinancialProducts extends Base
             $financialProducts[] = new FinancialProduct(
                 $financialProduct['name'],
                 LoanTypeEnum::from($financialProduct['type']),
-                $financialProduct['description'],
+                $financialProduct['description'] ?? '',
                 $financialProduct['icon'],
                 $financialProduct['instalmentAmount'],
                 $financialProduct['toPay'],
                 $financialProduct['loanTerm'],
-                $financialProduct['rrso'],
-                $financialProduct['representativeExample'],
-                $financialProduct['remarks'],
+                $financialProduct['rrso'] ?? 0.0,
+                $financialProduct['representativeExample'] ?? '',
+                $financialProduct['remarks'] ?? '',
                 array_map(
                     static fn (array $loanParams): LoanParameters => new LoanParameters(
                         $loanParams['instalmentAmount'],
@@ -44,6 +44,11 @@ class GetFinancialProducts extends Base
                     ),
                     $financialProduct['loanParameters']
                 ),
+                $financialProduct['initialPaymentValue'] ?? null,
+                $financialProduct['initialPaymentRate'] ?? null,
+                $financialProduct['redemptionPaymentValue'] ?? null,
+                $financialProduct['redemptionPaymentRate'] ?? null,
+                $financialProduct['offerRate'] ?? null
             );
         }
 
