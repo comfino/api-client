@@ -28,6 +28,11 @@ readonly class LoanParameters
      * @param int $toPay
      * @param int $loanTerm
      * @param float $rrso
+     * @param int|null $initialPaymentValue
+     * @param float|null $initialPaymentRate
+     * @param int|null $redemptionPaymentValue
+     * @param float|null $redemptionPaymentRate
+     * @param float|null $interest
      */
     public function __construct(
         int $instalmentAmount,
