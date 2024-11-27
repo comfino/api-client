@@ -30,13 +30,17 @@ trait CartTrait
         }
 
         $cartTotalWithDelivery = $cartTotal + ($cart->getDeliveryCost() ?? 0);
+        $cartTotalItemsSumDifference = (int) ($cart->getTotalAmount() - $cartTotalWithDelivery);
 
         if ($cartTotalWithDelivery > $cart->getTotalAmount()) {
             // Add discount item to the list - problems with cart items value and order total value inconsistency.
             $products[] = [
                 'name' => 'Rabat',
                 'quantity' => 1,
-                'price' => (int) ($cart->getTotalAmount() - $cartTotalWithDelivery),
+                'price' => $cartTotalItemsSumDifference,
+                'netPrice' => $cartTotalItemsSumDifference,
+                'vatRate' => null,
+                'vatAmount' => 0,
                 'category' => 'DISCOUNT',
             ];
         } elseif ($cartTotalWithDelivery < $cart->getTotalAmount()) {
@@ -44,7 +48,10 @@ trait CartTrait
             $products[] = [
                 'name' => 'Korekta',
                 'quantity' => 1,
-                'price' => (int) ($cart->getTotalAmount() - $cartTotalWithDelivery),
+                'price' => $cartTotalItemsSumDifference,
+                'netPrice' => $cartTotalItemsSumDifference,
+                'vatRate' => null,
+                'vatAmount' => 0,
                 'category' => 'ADDITIONAL_FEE',
             ];
         }
