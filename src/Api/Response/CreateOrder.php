@@ -2,8 +2,6 @@
 
 namespace Comfino\Api\Response;
 
-use Comfino\Api\Exception\ResponseValidationError;
-
 class CreateOrder extends Base
 {
     /** @var string */
@@ -13,11 +11,16 @@ class CreateOrder extends Base
     /** @var string */
     public readonly string $applicationUrl;
 
-    protected function processResponseBody(array|string|bool|null $deserializedResponseBody): void
+    /**
+     * @inheritDoc
+     */
+    protected function processResponseBody(array|string|bool|null|float|int $deserializedResponseBody): void
     {
-        if (!is_array($deserializedResponseBody)) {
-            throw new ResponseValidationError('Invalid response data: array expected.');
-        }
+        $this->checkResponseType($deserializedResponseBody, 'array');
+        $this->checkResponseStructure($deserializedResponseBody, ['status', 'externalId', 'applicationUrl']);
+        $this->checkResponseType($deserializedResponseBody['status'], 'string', 'status');
+        $this->checkResponseType($deserializedResponseBody['externalId'], 'string', 'externalId');
+        $this->checkResponseType($deserializedResponseBody['applicationUrl'], 'string', 'applicationUrl');
 
         $this->status = $deserializedResponseBody['status'];
         $this->externalId = $deserializedResponseBody['externalId'];

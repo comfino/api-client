@@ -34,7 +34,7 @@ readonly class Customer implements CustomerInterface
      */
     public function getFirstName(): string
     {
-        return $this->firstName;
+        return trim(strip_tags($this->firstName));
     }
 
     /**
@@ -42,7 +42,7 @@ readonly class Customer implements CustomerInterface
      */
     public function getLastName(): string
     {
-        return $this->lastName;
+        return trim(strip_tags($this->lastName));
     }
 
     /**
@@ -50,7 +50,7 @@ readonly class Customer implements CustomerInterface
      */
     public function getEmail(): string
     {
-        return $this->email;
+        return trim(strip_tags($this->email));
     }
 
     /**
@@ -58,7 +58,7 @@ readonly class Customer implements CustomerInterface
      */
     public function getPhoneNumber(): string
     {
-        return $this->phoneNumber;
+        return trim(strip_tags($this->phoneNumber));
     }
 
     /**
@@ -66,7 +66,7 @@ readonly class Customer implements CustomerInterface
      */
     public function getIp(): string
     {
-        return $this->ip;
+        return trim($this->ip);
     }
 
     /**
@@ -74,7 +74,7 @@ readonly class Customer implements CustomerInterface
      */
     public function getTaxId(): ?string
     {
-        return $this->taxId;
+        return $this->taxId !== null ? trim(strip_tags($this->taxId)) : null;
     }
 
     /**

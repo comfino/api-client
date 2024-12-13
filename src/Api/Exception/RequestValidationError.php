@@ -44,6 +44,10 @@ class RequestValidationError extends \LogicException implements HttpErrorExcepti
         return '';
     }
 
+    public function setResponseBody(string $responseBody): void
+    {
+    }
+
     public function getStatusCode(): int
     {
         return 400;

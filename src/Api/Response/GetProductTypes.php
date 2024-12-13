@@ -3,7 +3,6 @@
 namespace Comfino\Api\Response;
 
 use Comfino\Api\Dto\Payment\LoanTypeEnum;
-use Comfino\Api\Exception\ResponseValidationError;
 
 class GetProductTypes extends Base
 {
@@ -15,11 +14,9 @@ class GetProductTypes extends Base
     /**
      * @inheritDoc
      */
-    protected function processResponseBody(array|string|bool|null $deserializedResponseBody): void
+    protected function processResponseBody(array|string|bool|null|float|int $deserializedResponseBody): void
     {
-        if (!is_array($deserializedResponseBody)) {
-            throw new ResponseValidationError('Invalid response data: array expected.');
-        }
+        $this->checkResponseType($deserializedResponseBody, 'array');
 
         $this->productTypesWithNames = $deserializedResponseBody;
         $this->productTypes = array_map(

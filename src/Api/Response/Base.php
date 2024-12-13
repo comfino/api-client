@@ -32,7 +32,46 @@ class Base extends Response
     /**
      * @inheritDoc
      */
-    protected function processResponseBody(array|string|bool|null $deserializedResponseBody): void
+    protected function processResponseBody(array|string|int|float|bool|null $deserializedResponseBody): void
     {
+    }
+
+    /**
+     * @param array|string|bool|null $deserializedResponseBody
+     * @param string $expectedType
+     * @param string|null $fieldName
+     *
+     * @return void
+     *
+     * @throws ResponseValidationError
+     */
+    protected function checkResponseType(array|string|int|float|bool|null $deserializedResponseBody, string $expectedType, ?string $fieldName = null): void
+    {
+        if (gettype($deserializedResponseBody) !== $expectedType) {
+            if ($expectedType === 'double' && is_int($deserializedResponseBody)) {
+                return;
+            }
+
+            if ($fieldName !== null) {
+                throw new ResponseValidationError("Invalid response field \"$fieldName\" data type: $expectedType expected.");
+            }
+            var_dump($deserializedResponseBody, gettype($deserializedResponseBody));
+            throw new ResponseValidationError("Invalid response data type: $expectedType expected.");
+        }
+    }
+
+    /**
+     * @param array $deserializedResponseBody
+     * @param string[] $expectedKeys
+     *
+     * @return void
+     *
+     * @throws ResponseValidationError
+     */
+    protected function checkResponseStructure(array $deserializedResponseBody, array $expectedKeys): void
+    {
+        if (count($responseKeysDiff = array_diff($expectedKeys, array_keys($deserializedResponseBody))) > 0) {
+            throw new ResponseValidationError('Invalid response data structure: missing fields: ' . implode(', ', $responseKeysDiff));
+        }
     }
 }

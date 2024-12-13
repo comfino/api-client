@@ -2,8 +2,6 @@
 
 namespace Comfino\Api\Response;
 
-use Comfino\Api\Exception\ResponseValidationError;
-
 class GetWidgetKey extends Base
 {
     /** @var string */
@@ -12,11 +10,9 @@ class GetWidgetKey extends Base
     /**
      * @inheritDoc
      */
-    protected function processResponseBody(array|string|bool|null $deserializedResponseBody): void
+    protected function processResponseBody(array|string|bool|null|float|int $deserializedResponseBody): void
     {
-        if (!is_string($deserializedResponseBody)) {
-            throw new ResponseValidationError('Invalid response data: string expected.');
-        }
+        $this->checkResponseType($deserializedResponseBody, 'string');
 
         $this->widgetKey = $deserializedResponseBody;
     }

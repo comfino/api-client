@@ -2,8 +2,6 @@
 
 namespace Comfino\Api\Response;
 
-use Comfino\Api\Exception\ResponseValidationError;
-
 class GetPaywallItemDetails extends Base
 {
     /** @var string */
@@ -14,11 +12,12 @@ class GetPaywallItemDetails extends Base
     /**
      * @inheritDoc
      */
-    protected function processResponseBody(array|string|bool|null $deserializedResponseBody): void
+    protected function processResponseBody(array|string|bool|null|float|int $deserializedResponseBody): void
     {
-        if (!is_array($deserializedResponseBody)) {
-            throw new ResponseValidationError('Invalid response data: array expected.');
-        }
+        $this->checkResponseType($deserializedResponseBody, 'array');
+        $this->checkResponseStructure($deserializedResponseBody, ['productDetails', 'listItemData']);
+        $this->checkResponseType($deserializedResponseBody['productDetails'], 'string');
+        $this->checkResponseType($deserializedResponseBody['listItemData'], 'string');
 
         $this->productDetails = $deserializedResponseBody['productDetails'];
         $this->listItemData = $deserializedResponseBody['listItemData'];
