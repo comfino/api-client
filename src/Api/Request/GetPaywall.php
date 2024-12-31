@@ -9,8 +9,9 @@ class GetPaywall extends Request
 {
     /**
      * @param LoanQueryCriteria $queryCriteria
+     * @param string|null $recalculationUrl
      */
-    public function __construct(LoanQueryCriteria $queryCriteria)
+    public function __construct(LoanQueryCriteria $queryCriteria, ?string $recalculationUrl)
     {
         $this->setRequestMethod('GET');
         $this->setApiEndpointPath('shop-plugin-paywall');
@@ -26,6 +27,10 @@ class GetPaywall extends Request
                 static fn ($value): bool => $value !== null
             )
         );
+
+        if ($recalculationUrl !== null) {
+            $this->setRequestHeaders(['Comfino-Recalculation-Url' => $recalculationUrl]);
+        }
     }
 
     /**
