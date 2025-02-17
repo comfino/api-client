@@ -9,6 +9,8 @@ readonly class FinancialProduct
     /** @var LoanTypeEnum */
     public LoanTypeEnum $type;
     /** @var string */
+    public string $creditorName;
+    /** @var string */
     public string $description;
     /** @var string */
     public string $icon;
@@ -40,6 +42,7 @@ readonly class FinancialProduct
     /**
      * @param string $name
      * @param LoanTypeEnum $type
+     * @param string $creditorName
      * @param string $description
      * @param string $icon
      * @param int $instalmentAmount
@@ -58,6 +61,7 @@ readonly class FinancialProduct
     public function __construct(
         string $name,
         LoanTypeEnum $type,
+        string $creditorName,
         string $description,
         string $icon,
         int $instalmentAmount,
@@ -75,6 +79,7 @@ readonly class FinancialProduct
     ) {
         $this->name = $name;
         $this->type = $type;
+        $this->creditorName = $creditorName;
         $this->description = $description;
         $this->icon = $icon;
         $this->instalmentAmount = $instalmentAmount;
