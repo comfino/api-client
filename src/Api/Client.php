@@ -51,7 +51,7 @@ class Client
 {
     protected const CLIENT_VERSION = '1.0';
     protected const PRODUCTION_HOST = 'https://api-ecommerce.comfino.pl';
-    protected const SANDBOX_HOST = 'https://api-ecommerce.ecraty.pl';
+    protected const SANDBOX_HOST = 'https://api-ecommerce.craty.pl';
 
     /** @var string */
     protected string $apiLanguage = 'pl';
@@ -235,6 +235,9 @@ class Client
 
     /**
      * Checks if registered user shop account is active.
+     *
+     * @param string|null $cacheInvalidateUrl Integrated platform API endpoint for local cache invalidation.
+     * @param string|null $configurationUrl Integrated platform API endpoint for local configuration management.
      *
      * @return bool
      *
