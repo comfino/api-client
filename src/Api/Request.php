@@ -15,17 +15,17 @@ abstract class Request
     /** @var SerializerInterface */
     protected SerializerInterface $serializer;
     /** @var string */
-    private string $method;
+    protected string $method;
     /** @var string */
-    private string $apiEndpointPath;
+    protected string $apiEndpointPath;
     /** @var string[]|null */
-    private ?array $requestHeaders = null;
+    protected ?array $requestHeaders = null;
     /** @var string[]|null */
-    private ?array $requestParams = null;
+    protected ?array $requestParams = null;
     /** @var string|null */
-    private ?string $requestUri = null;
+    protected ?string $requestUri = null;
     /** @var string|null */
-    private ?string $requestBody = null;
+    protected ?string $requestBody = null;
 
     final public function setSerializer(SerializerInterface $serializer): self
     {
@@ -101,7 +101,7 @@ abstract class Request
      *
      * @throws RequestValidationError
      */
-    final public function __toString(): string
+    public function __toString(): string
     {
         return ($serializedBody = $this->serializeRequestBody()) !== null ? $serializedBody : '';
     }
@@ -164,7 +164,7 @@ abstract class Request
      *
      * @throws RequestValidationError
      */
-    final protected function serializeRequestBody(): ?string
+    protected function serializeRequestBody(): ?string
     {
         return ($body = $this->prepareRequestBody()) !== null ? $this->serializer->serialize($body) : null;
     }
@@ -175,7 +175,7 @@ abstract class Request
      *
      * @return string
      */
-    final protected function getApiEndpointUri(string $apiHost, int $apiVersion): string
+    protected function getApiEndpointUri(string $apiHost, int $apiVersion): string
     {
         $uri = implode('/', [trim($apiHost, " /\n\r\t\v\0"), "v$apiVersion", $this->apiEndpointPath]);
 

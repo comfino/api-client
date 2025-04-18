@@ -459,6 +459,8 @@ class Client
     /**
      * Returns a list of available widget types associated with an authorized shop account.
      *
+     * @param bool $useNewApi Whether to use a new widget type and new API endpoint.
+     *
      * @throws RequestValidationError
      * @throws ResponseValidationError
      * @throws AuthorizationError
@@ -466,10 +468,10 @@ class Client
      * @throws ServiceUnavailable
      * @throws ClientExceptionInterface
      */
-    public function getWidgetTypes(): GetWidgetTypesResponse
+    public function getWidgetTypes(bool $useNewApi = true): GetWidgetTypesResponse
     {
         try {
-            $this->request = (new GetWidgetTypesRequest())->setSerializer($this->serializer);
+            $this->request = (new GetWidgetTypesRequest($useNewApi))->setSerializer($this->serializer);
 
             return new GetWidgetTypesResponse($this->request, $this->sendRequest($this->request), $this->serializer);
         } catch (HttpErrorExceptionInterface $e) {
