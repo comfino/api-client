@@ -61,6 +61,8 @@ class Client
     protected ?string $customUserAgent = null;
     /** @var string[] */
     protected array $customHeaders = [];
+    /** @var string */
+    protected string $clientHostName = '';
     /** @var bool */
     protected bool $isSandboxMode = false;
     /** @var Request|null */
@@ -198,6 +200,22 @@ class Client
     public function addCustomHeader(string $headerName, string $headerValue): void
     {
         $this->customHeaders[$headerName] = $headerValue;
+    }
+
+    /**
+     * Sets client host name.
+     *
+     * @param string $host
+     *
+     * @return void
+     */
+    public function setClientHostName(string $host): void
+    {
+        if (($filteredHost = filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false)) {
+            $filteredHost = gethostname();
+        }
+
+        $this->clientHostName = $filteredHost !== false ? $filteredHost : '';
     }
 
     public function enableSandboxMode(): void
@@ -551,6 +569,12 @@ class Client
      */
     protected function sendRequest(Request $request, ?int $apiVersion = null): ResponseInterface
     {
+        if (($trackId = !empty($this->clientHostName) ? $this->clientHostName : gethostname()) === false) {
+            $trackId = 'trid-' . uniqid('', true);
+        } else {
+            $trackId .= ('-' . microtime(true));
+        }
+
         $apiRequest = $request->getPsrRequest(
             $this->requestFactory,
             $this->streamFactory,
@@ -559,7 +583,8 @@ class Client
         )
         ->withHeader('Content-Type', 'application/json')
         ->withHeader('Api-Language', $this->apiLanguage)
-        ->withHeader('User-Agent', $this->getUserAgent());
+        ->withHeader('User-Agent', $this->getUserAgent())
+        ->withHeader('Comfino-Track-Id', $trackId);
 
         if (count($this->customHeaders) > 0) {
             foreach ($this->customHeaders as $headerName => $headerValue) {
