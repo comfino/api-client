@@ -14,6 +14,7 @@ readonly class LoanTypeEnum extends Enum
     public const RENEWABLE_LIMIT = 'RENEWABLE_LIMIT';
     public const BLIK = 'BLIK';
     public const LEASING = 'LEASING';
+    public const PAY_IN_PARTS = 'PAY_IN_PARTS';
 
     public static function from(string $value, bool $strict = true): self
     {
