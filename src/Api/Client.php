@@ -118,7 +118,7 @@ class Client
      */
     public function getApiKey(): string
     {
-        return $this->apiKey;
+        return $this->apiKey ?? '';
     }
 
     /**
