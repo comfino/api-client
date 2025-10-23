@@ -1141,7 +1141,7 @@ trait ClientTestTrait
         $this->productionApiHost = parse_url($this->getConstantFromClass(Client::class, 'PRODUCTION_HOST'), PHP_URL_HOST);
     }
 
-    private function initApiClient(string $endpointPath, string $method, ?array $queryParameters = null, string|null $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200, string $contentType = 'application/json'): Client
+    private function initApiClient(string $endpointPath, string $method, ?array $queryParameters = null, ?string $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200, string $contentType = 'application/json'): Client
     {
         $client = new \Http\Mock\Client();
         $client->on(
@@ -1152,7 +1152,7 @@ trait ClientTestTrait
         return new Client(new RequestFactory(), new StreamFactory(), $client, $apiKey);
     }
 
-    private function processRequest(RequestInterface $request, ?array $queryParameters = null, string|null $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200, string $contentType = 'application/json'): ResponseInterface
+    private function processRequest(RequestInterface $request, ?array $queryParameters = null, ?string $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200, string $contentType = 'application/json'): ResponseInterface
     {
         if (!$isPublicEndpoint && (!$request->hasHeader('Api-Key') || $request->getHeaderLine('Api-Key') !== $apiKey)) {
             return (new ResponseFactory())->createJsonResponse(401, ['message' => 'Invalid credentials.']);
