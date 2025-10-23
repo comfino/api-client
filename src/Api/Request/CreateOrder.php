@@ -14,9 +14,10 @@ class CreateOrder extends Request
     use CartTrait;
 
     /**
-     * @param OrderInterface $order Full order data (cart, loan details)
+     * @param OrderInterface $order Full order data (cart, loan details).
+     * @param bool $validateOnly Flag used for order validation (if true, order is not created and only validation result is returned).
      */
-    public function __construct(private readonly OrderInterface $order)
+    public function __construct(private readonly OrderInterface $order, private readonly bool $validateOnly = false)
     {
         $this->setRequestMethod('POST');
         $this->setApiEndpointPath('orders');
@@ -91,6 +92,7 @@ class CreateOrder extends Request
                 // Extra data (optional)
                 'accountNumber' => $this->order->getAccountNumber(),
                 'transferTitle' => $this->order->getTransferTitle(),
+                'simulation' => $this->validateOnly ?: null,
             ],
             static fn ($value): bool => $value !== null
         );

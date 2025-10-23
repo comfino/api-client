@@ -24,7 +24,7 @@ class Json implements SerializerInterface
         try {
             $deserializedResponseBody = json_decode($responseBody, true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
-            throw new ResponseValidationError("Invalid response data: {$e->getMessage()}", 0, $e);
+            throw new ResponseValidationError("Invalid response data: {$e->getMessage()}", 0, $e, responseBody: $responseBody);
         }
 
         return $deserializedResponseBody;

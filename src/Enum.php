@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection ALL */
 
 namespace Comfino;
 
@@ -36,5 +36,14 @@ readonly abstract class Enum implements \JsonSerializable
     public function __toString(): string
     {
         return $this->value;
+    }
+
+    public function __get(string $name): mixed
+    {
+        if ($name === 'value') {
+            return $this->value;
+        }
+
+        throw new \InvalidArgumentException("Property '$name' does not exist.");
     }
 }

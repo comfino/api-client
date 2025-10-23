@@ -16,4 +16,28 @@ trait ReflectionTrait
     {
         return (new \ReflectionClass($class))->getConstant($name);
     }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function getPropertyValue(object $object, string $propertyName): mixed
+    {
+        $reflection = new \ReflectionObject($object);
+        $property = $reflection->getProperty($propertyName);
+        $property->setAccessible(true);
+
+        return $property->getValue($object);
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function getMethodResult(object $object, string $methodName, array $arguments = []): mixed
+    {
+        $reflection = new \ReflectionObject($object);
+        $method = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($object, $arguments);
+    }
 }
