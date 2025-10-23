@@ -45,12 +45,12 @@ use Psr\Http\Message\StreamFactoryInterface;
 /**
  * Comfino API client.
  *
- * @version 1.1
+ * @version 1.1.0
  * @author Artur Kozubski <akozubski@comperia.pl>
  */
 class Client
 {
-    protected const CLIENT_VERSION = '1.1';
+    protected const CLIENT_VERSION = '1.1.0';
     protected const PRODUCTION_HOST = 'https://api-ecommerce.comfino.pl';
     protected const SANDBOX_HOST = 'https://api-ecommerce.craty.pl';
 
