@@ -50,9 +50,9 @@ use Psr\Http\Message\StreamFactoryInterface;
  */
 class Client
 {
-    protected const CLIENT_VERSION = '1.1.0';
-    protected const PRODUCTION_HOST = 'https://api-ecommerce.comfino.pl';
-    protected const SANDBOX_HOST = 'https://api-ecommerce.craty.pl';
+    public const CLIENT_VERSION = '1.1.0';
+    public const PRODUCTION_HOST = 'https://api-ecommerce.comfino.pl';
+    public const SANDBOX_HOST = 'https://api-ecommerce.craty.pl';
 
     /** @var string */
     protected string $apiLanguage = 'pl';
