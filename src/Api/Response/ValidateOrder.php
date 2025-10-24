@@ -74,6 +74,9 @@ class ValidateOrder extends CreateOrder
                     // Low level network errors.
                     $isNetworkError = true;
                 }
+            } else {
+                $errors = [$exception->getMessage()];
+                $errorCode = $exception->getCode();
             }
         }
 
