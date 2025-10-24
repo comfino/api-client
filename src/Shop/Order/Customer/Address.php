@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Comfino\Shop\Order\Customer;
 
 readonly class Address implements AddressInterface

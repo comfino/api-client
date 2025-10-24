@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Comfino\Api\Response;
 
 use Comfino\Api\Exception\RequestValidationError;
@@ -80,11 +82,4 @@ class ValidateOrder extends CreateOrder
         $this->isNetworkError = $isNetworkError;
         $this->errorCode = $errorCode;
     }
-
-/*    protected function processResponseBody(array|string|bool|null|float|int $deserializedResponseBody): void
-    {
-        if ($this->success) {
-            parent::processResponseBody($deserializedResponseBody);
-        }
-    }*/
 }

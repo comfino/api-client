@@ -1,5 +1,7 @@
 <?php /** @noinspection ALL */
 
+declare(strict_types=1);
+
 namespace Comfino;
 
 /** Replacement of enum type to maintain source code compatibility with PHP 7.1 (workaround for Rector transpilation bug). */
