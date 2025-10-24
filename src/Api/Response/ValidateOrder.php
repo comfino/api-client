@@ -12,7 +12,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\NetworkExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class ValidateOrder extends CreateOrder
+class ValidateOrder extends Base
 {
     /** @var string Unique track ID associated with every API request. */
     public readonly string $trackId;
