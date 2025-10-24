@@ -372,8 +372,6 @@ class Client
      * @param OrderInterface $order
      *
      * @return ValidateOrderResponse
-     *
-     * @throws ClientExceptionInterface
      */
     public function validateOrder(OrderInterface $order): ValidateOrderResponse
     {
@@ -381,8 +379,13 @@ class Client
             $this->request = (new CreateOrderRequest($order, true))->setSerializer($this->serializer);
 
             return new ValidateOrderResponse($this->request, $this->sendRequest($this->request), $this->serializer);
-        } catch (RequestValidationError $e) {
-            return new ValidateOrderResponse($this->request, $e->getResponse(), $this->serializer, $e);
+        } catch (\Throwable $e) {
+            return new ValidateOrderResponse(
+                $this->request,
+                $e instanceof RequestValidationError ? $e->getResponse() : $this->response,
+                $this->serializer,
+                $e
+            );
         }
     }
 
@@ -525,7 +528,6 @@ class Client
 
     /**
      * @throws RequestValidationError
-     * @throws ResponseValidationError
      * @throws ClientExceptionInterface
      */
     protected function sendRequest(Request $request, ?int $apiVersion = null): ResponseInterface
