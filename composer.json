@@ -1,18 +1,22 @@
 {
 	"name": "comfino/api-client",
 	"type": "library",
-	"description": "Comfino API client library.",
+	"description": "Modern PHP 8.2+ API client library for the Comfino payment gateway with PSR-18/PSR-7 support.",
 	"keywords": [
-		"library",
-		"api",
-		"client",
 		"comfino",
 		"payment",
 		"gateway",
+		"api",
+		"client",
+		"psr-18",
+		"psr-7",
 		"pay later",
-		"deffered payments"
+		"deferred payments",
+		"bnpl",
+		"installments"
 	],
 	"homepage": "https://github.com/comfino/api-client",
+	"readme": "README.md",
 	"minimum-stability": "stable",
 	"license": "BSD-3-Clause",
 	"authors": [
@@ -22,6 +26,11 @@
 			"homepage": "https://comfino.pl/api"
 		}
 	],
+	"support": {
+		"issues": "https://github.com/comfino/api-client/issues",
+		"source": "https://github.com/comfino/api-client",
+		"docs": "https://github.com/comfino/api-client#readme"
+	},
 	"config": {
 		"allow-plugins": {
 			"php-http/discovery": true

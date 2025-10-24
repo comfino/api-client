@@ -1,4 +1,10 @@
+# IDE and Editor
 .idea
+.vscode
+*.swp
+*.swo
+*~
+.DS_Store
 
 # Managed by Composer
 /vendor/
@@ -6,3 +12,9 @@
 # PHPUnit
 /phpunit.xml
 /.phpunit.result.cache
+/coverage/
+
+# Build and cache
+/build/
+/.php-cs-fixer.cache
+/.phpcs.cache

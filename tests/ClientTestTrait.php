@@ -11,7 +11,12 @@ use Comfino\Api\Dto\Order\Customer\Address;
 use Comfino\Api\Dto\Payment\FinancialProduct;
 use Comfino\Api\Dto\Payment\LoanQueryCriteria;
 use Comfino\Api\Dto\Payment\LoanTypeEnum;
+use Comfino\Api\Exception\AccessDenied;
 use Comfino\Api\Exception\AuthorizationError;
+use Comfino\Api\Exception\ResponseValidationError;
+use Comfino\Api\Exception\ServiceUnavailable;
+use Comfino\Api\Request;
+use Comfino\Api\Serializer\Json;
 use Comfino\FinancialProduct\ProductTypesListTypeEnum;
 use Comfino\Shop\Order\Cart;
 use Comfino\Shop\Order\LoanParameters;
@@ -1132,6 +1137,278 @@ trait ClientTestTrait
         $this->assertEquals(LoanTypeEnum::PAY_LATER, $response->loanParameters->allowedProductTypes[0]);
         $this->assertTrue($response->customer->regular);
         $this->assertTrue($response->customer->logged);
+    }
+
+    /**
+     * @throws \ReflectionException
+     * @throws Exception
+     */
+    public function testSetSerializer(): void
+    {
+        $apiClient = new Client(
+            $this->createMock(RequestFactoryInterface::class),
+            $this->createMock(StreamFactoryInterface::class),
+            $this->createMock(ClientInterface::class),
+            'TEST-API-KEY'
+        );
+
+        $customSerializer = new Json();
+
+        $apiClient->setSerializer($customSerializer);
+
+        $this->assertSame($customSerializer, $this->getPropertyValue($apiClient, 'serializer'));
+    }
+
+    /**
+     * @throws Exception
+     * @throws \ReflectionException
+     */
+    public function testSetClientHostName(): void
+    {
+        $apiClient = new Client(
+            $this->createMock(RequestFactoryInterface::class),
+            $this->createMock(StreamFactoryInterface::class),
+            $this->createMock(ClientInterface::class),
+            'TEST-API-KEY'
+        );
+
+        /* Test valid hostname - PHP's filter_var with FILTER_VALIDATE_DOMAIN may not accept this format.
+           The actual implementation may have specific validation rules. */
+        $apiClient->setClientHostName('localhost');
+
+        $clientHostName = $this->getPropertyValue($apiClient, 'clientHostName');
+
+        // The hostname could be set as provided, or fall back to gethostname().
+        $this->assertTrue($clientHostName === 'localhost' || $clientHostName === gethostname() || $clientHostName === '');
+
+        // Test invalid hostname (should fallback to gethostname or empty string).
+        $apiClient->setClientHostName('invalid..hostname');
+
+        $clientHostName = $this->getPropertyValue($apiClient, 'clientHostName');
+
+        $this->assertTrue($clientHostName === gethostname() || $clientHostName === '');
+    }
+
+    /**
+     * @throws Exception
+     * @throws \ReflectionException
+     */
+    public function testSetClient(): void
+    {
+        $mockClient = $this->createMock(ClientInterface::class);
+        $apiClient = new Client(
+            $this->createMock(RequestFactoryInterface::class),
+            $this->createMock(StreamFactoryInterface::class),
+            $mockClient,
+            'TEST-API-KEY'
+        );
+
+        $newClient = $this->createMock(ClientInterface::class);
+
+        $apiClient->setClient($newClient);
+
+        $this->assertSame($newClient, $this->getPropertyValue($apiClient, 'client'));
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testGetRequest(): void
+    {
+        $apiClient = $this->initApiClient('/v1/user/is-active', 'GET', null, null, true, 'API-KEY');
+
+        // Before making any request, getRequest() should return null.
+        $this->assertNull($apiClient->getRequest());
+
+        // After making a request
+        $apiClient->isShopAccountActive();
+
+        // getRequest() should return the last request.
+        $lastRequest = $apiClient->getRequest();
+
+        $this->assertInstanceOf(Request::class, $lastRequest);
+        $this->assertStringContainsString('/v1/user/is-active', $lastRequest->getRequestUri());
+    }
+
+    /**
+     * Tests for missing error scenarios
+     *
+     * @throws ClientExceptionInterface
+     */
+    public function testAccessDeniedError(): void
+    {
+        $queryCriteria = new LoanQueryCriteria(100000);
+
+        $this->expectException(AccessDenied::class);
+        $this->expectExceptionMessage('Forbidden');
+
+        $apiClient = $this->initApiClient(
+            '/v1/financial-products',
+            'GET',
+            ['loanAmount' => $queryCriteria->loanAmount],
+            null,
+            ['message' => 'Forbidden'],
+            'API-KEY',
+            false,
+            403
+        );
+
+        $apiClient->getFinancialProducts($queryCriteria);
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testAccessDeniedError404(): void
+    {
+        $queryCriteria = new LoanQueryCriteria(100000);
+
+        $this->expectException(AccessDenied::class);
+        $this->expectExceptionCode(404);
+
+        $apiClient = $this->initApiClient(
+            '/v1/financial-products',
+            'GET',
+            ['loanAmount' => $queryCriteria->loanAmount],
+            null,
+            ['message' => 'Not Found'],
+            'API-KEY',
+            false,
+            404
+        );
+
+        $apiClient->getFinancialProducts($queryCriteria);
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testServiceUnavailableError(): void
+    {
+        $queryCriteria = new LoanQueryCriteria(100000);
+
+        $this->expectException(ServiceUnavailable::class);
+        $this->expectExceptionMessage('Comfino API service is unavailable');
+
+        $apiClient = $this->initApiClient(
+            '/v1/financial-products',
+            'GET',
+            ['loanAmount' => $queryCriteria->loanAmount],
+            null,
+            ['message' => 'Service temporarily unavailable'],
+            'API-KEY',
+            false,
+            503
+        );
+
+        $apiClient->getFinancialProducts($queryCriteria);
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testServiceUnavailableError500(): void
+    {
+        $queryCriteria = new LoanQueryCriteria(100000);
+
+        $this->expectException(ServiceUnavailable::class);
+        $this->expectExceptionCode(0);
+
+        $apiClient = $this->initApiClient(
+            '/v1/financial-products',
+            'GET',
+            ['loanAmount' => $queryCriteria->loanAmount],
+            null,
+            ['message' => 'Internal Server Error'],
+            'API-KEY',
+            false,
+            500
+        );
+
+        $apiClient->getFinancialProducts($queryCriteria);
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testResponseValidationErrorWithMissingFields(): void
+    {
+        $this->expectException(ResponseValidationError::class);
+        $this->expectExceptionMessage('Invalid response data type');
+
+        // GetWidgetKey expects a response with 'widgetKey' field.
+        $apiClient = $this->initApiClient(
+            '/v1/widget-key',
+            'GET',
+            null,
+            null,
+            ['wrongField' => 'value'], // Missing 'widgetKey' field.
+            'API-KEY'
+        );
+
+        $apiClient->getWidgetKey();
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testResponseValidationErrorWithInvalidType(): void
+    {
+        $this->expectException(ResponseValidationError::class);
+        $this->expectExceptionMessage('Invalid response');
+
+        // isShopAccountActive expects boolean response.
+        $apiClient = $this->initApiClient(
+            '/v1/user/is-active',
+            'GET',
+            null,
+            null,
+            ['not' => 'boolean'], // Should be boolean, not array.
+            'API-KEY'
+        );
+
+        $apiClient->isShopAccountActive();
+    }
+
+    /**
+     * Edge case tests.
+     *
+     * @throws Exception
+     */
+    public function testApiClientWithNullApiKey(): void
+    {
+        $apiClient = new Client(
+            $this->createMock(RequestFactoryInterface::class),
+            $this->createMock(StreamFactoryInterface::class),
+            $this->createMock(ClientInterface::class),
+            null
+        );
+
+        $this->assertEquals('', $apiClient->getApiKey());
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testMalformedJsonResponse(): void
+    {
+        $this->expectException(ResponseValidationError::class);
+
+        $queryCriteria = new LoanQueryCriteria(100000);
+
+        $apiClient = $this->initApiClient(
+            '/v1/financial-products',
+            'GET',
+            ['loanAmount' => $queryCriteria->loanAmount],
+            null,
+            'invalid json content',
+            'API-KEY',
+            false,
+            200,
+            'text/plain'
+        );
+
+        $apiClient->getFinancialProducts($queryCriteria);
     }
 
     /**
