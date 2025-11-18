@@ -15,14 +15,27 @@ class CreateOrder extends Request
 {
     use CartTrait;
 
+    private ?array $preparedRequestBody = null;
+
     /**
      * @param OrderInterface $order Full order data (cart, loan details).
+     * @param string $apiKey API key.
      * @param bool $validateOnly Flag used for order validation (if true, order is not created and only validation result is returned).
      */
-    public function __construct(private readonly OrderInterface $order, private readonly bool $validateOnly = false)
+    public function __construct(private readonly OrderInterface $order, string $apiKey, private readonly bool $validateOnly = false)
     {
         $this->setRequestMethod('POST');
         $this->setApiEndpointPath('orders');
+
+        $preparedRequestBody = $this->prepareRequestBody();
+        $cartHash = $this->generateHash($preparedRequestBody['cart']);
+        $customerHash = $this->generateHash($preparedRequestBody['customer']);
+
+        $this->setRequestHeaders([
+            'Comfino-Cart-Hash' => $cartHash,
+            'Comfino-Customer-Hash' => $customerHash,
+            'Comfino-Order-Signature' => hash('sha3-256', $cartHash . $customerHash . $apiKey),
+        ]);
     }
 
     /**
@@ -30,9 +43,13 @@ class CreateOrder extends Request
      */
     protected function prepareRequestBody(): array
     {
+        if ($this->preparedRequestBody !== null) {
+            return $this->preparedRequestBody;
+        }
+
         $customer = $this->order->getCustomer();
 
-        return array_filter(
+        $this->preparedRequestBody = array_filter(
             [
                 // Basic order data
                 'notifyUrl' => $this->order->getNotifyUrl(),
@@ -98,5 +115,16 @@ class CreateOrder extends Request
             ],
             static fn ($value): bool => $value !== null
         );
+
+        return $this->preparedRequestBody;
+    }
+
+    private function generateHash(array $data): string
+    {
+        try {
+            return md5(json_encode($data, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION));
+        } catch (\JsonException) {
+            return '';
+        }
     }
 }

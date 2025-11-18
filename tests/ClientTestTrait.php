@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Comfino;
+namespace Comfino\Tests;
 
+use Comfino\Api;
 use Comfino\Api\Client;
 use Comfino\Api\Dto\Order\Cart\CartItem;
 use Comfino\Api\Dto\Order\Customer;
@@ -18,6 +19,7 @@ use Comfino\Api\Exception\ServiceUnavailable;
 use Comfino\Api\Request;
 use Comfino\Api\Serializer\Json;
 use Comfino\FinancialProduct\ProductTypesListTypeEnum;
+use Comfino\Shop;
 use Comfino\Shop\Order\Cart;
 use Comfino\Shop\Order\LoanParameters;
 use Comfino\Shop\Order\Order;
@@ -218,7 +220,15 @@ trait ClientTestTrait
                 512,
                 JSON_THROW_ON_ERROR
             ),
-            'API-KEY'
+            'API-KEY',
+            false,
+            200,
+            'application/json',
+            [
+                'Comfino-Cart-Hash' => 'c0b655bd11bfd88669a97f16c775ef83',
+                'Comfino-Customer-Hash' => 'cffc13aea6c5f446f7edcc935cec5f0b',
+                'Comfino-Order-Signature' => '984c2aa38d7eaa431aae6862048a31a58e9aa18e7428a25adc108c4e88bb045c',
+            ]
         );
 
         $response = $apiClient->createOrder($order);
@@ -275,7 +285,13 @@ trait ClientTestTrait
             ],
             'API-KEY',
             false,
-            400
+            400,
+            'application/json',
+            [
+                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
+                'Comfino-Customer-Hash' => '6abe8d5dc9292762306c34c6bf864ea0',
+                'Comfino-Order-Signature' => '2ab660611438ee77197bbbe15ee27af2e6a438c6e2e053eb81890860dc93bd10',
+            ]
         );
 
         $this->expectException(Api\Exception\RequestValidationError::class);
@@ -324,7 +340,13 @@ trait ClientTestTrait
             ['errors' => ['seller' => 'Sale point is inactive']],
             'API-KEY',
             false,
-            400
+            400,
+            'application/json',
+            [
+                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
+                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
+                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+            ]
         );
 
         $this->expectException(Api\Exception\RequestValidationError::class);
@@ -690,7 +712,15 @@ trait ClientTestTrait
                 512,
                 JSON_THROW_ON_ERROR
             ),
-            'API-KEY'
+            'API-KEY',
+            false,
+            200,
+            'application/json',
+            [
+                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
+                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
+                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+            ]
         );
 
         $response = $apiClient->validateOrder($order);
@@ -737,7 +767,13 @@ trait ClientTestTrait
             ],
             'API-KEY',
             false,
-            400
+            400,
+            'application/json',
+            [
+                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
+                'Comfino-Customer-Hash' => '6abe8d5dc9292762306c34c6bf864ea0',
+                'Comfino-Order-Signature' => '2ab660611438ee77197bbbe15ee27af2e6a438c6e2e053eb81890860dc93bd10',
+            ]
         );
 
         $response = $apiClient->validateOrder($order);
@@ -787,7 +823,13 @@ trait ClientTestTrait
             ['errors' => ['orderId' => 'Order with this ID already exists']],
             'API-KEY',
             false,
-            400
+            400,
+            'application/json',
+            [
+                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
+                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
+                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+            ]
         );
 
         $response = $apiClient->validateOrder($order);
@@ -835,7 +877,13 @@ trait ClientTestTrait
             ['errors' => ['seller' => 'Sale point is inactive']],
             'API-KEY',
             false,
-            400
+            400,
+            'application/json',
+            [
+                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
+                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
+                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+            ]
         );
 
         $response = $apiClient->validateOrder($order);
@@ -883,7 +931,13 @@ trait ClientTestTrait
             ['message' => 'Invalid JSON syntax'],
             'API-KEY',
             false,
-            400
+            400,
+            'application/json',
+            [
+                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
+                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
+                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+            ]
         );
 
         $response = $apiClient->validateOrder($order);
@@ -935,7 +989,13 @@ trait ClientTestTrait
             ],
             'API-KEY',
             false,
-            202
+            202,
+            'application/json',
+            [
+                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
+                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
+                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+            ]
         );
 
         $response = $apiClient->validateOrder($order);
@@ -1419,18 +1479,18 @@ trait ClientTestTrait
         $this->productionApiHost = parse_url($this->getConstantFromClass(Client::class, 'PRODUCTION_HOST'), PHP_URL_HOST);
     }
 
-    private function initApiClient(string $endpointPath, string $method, ?array $queryParameters = null, ?string $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200, string $contentType = 'application/json'): Client
+    private function initApiClient(string $endpointPath, string $method, ?array $queryParameters = null, ?string $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200, string $contentType = 'application/json', ?array $expectedHeaders = null): Client
     {
         $client = new \Http\Mock\Client();
         $client->on(
             new RequestMatcher($endpointPath, $this->productionApiHost, $method, 'https'),
-            fn (RequestInterface $request) => $this->processRequest($request, $queryParameters, $requestBody, $responseData, $apiKey, $isPublicEndpoint, $responseStatus)
+            fn (RequestInterface $request) => $this->processRequest($request, $queryParameters, $requestBody, $responseData, $apiKey, $isPublicEndpoint, $responseStatus, $contentType, $expectedHeaders)
         );
 
         return new Client(new RequestFactory(), new StreamFactory(), $client, $apiKey);
     }
 
-    private function processRequest(RequestInterface $request, ?array $queryParameters = null, ?string $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200, string $contentType = 'application/json'): ResponseInterface
+    private function processRequest(RequestInterface $request, ?array $queryParameters = null, ?string $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200, string $contentType = 'application/json', ?array $expectedHeaders = null): ResponseInterface
     {
         if (!$isPublicEndpoint && (!$request->hasHeader('Api-Key') || $request->getHeaderLine('Api-Key') !== $apiKey)) {
             return (new ResponseFactory())->createJsonResponse(401, ['message' => 'Invalid credentials.']);
@@ -1446,6 +1506,13 @@ trait ClientTestTrait
             $this->assertEquals(http_build_query($queryParameters), $request->getUri()->getQuery(), 'Request URL query string is invalid.');
         } else {
             $this->assertEquals('', $request->getUri()->getQuery(), 'Request URL query string is invalid.');
+        }
+
+        if (is_array($expectedHeaders)) {
+            foreach ($expectedHeaders as $headerName => $headerValue) {
+                $this->assertTrue($request->hasHeader($headerName), "Expected header '{$headerName}' is missing.");
+                $this->assertEquals($headerValue, $request->getHeaderLine($headerName), "Header '{$headerName}' has invalid value.");
+            }
         }
 
         if ($contentType === 'application/json') {

@@ -1,7 +1,7 @@
 {
 	"name": "comfino/api-client",
 	"type": "library",
-	"description": "Modern PHP 8.2+ API client library for the Comfino payment gateway with PSR-18/PSR-7 support.",
+	"description": "Standard PHP API client library for the Comfino payment gateway with PSR-18/PSR-7 support.",
 	"keywords": [
 		"comfino",
 		"payment",
@@ -58,7 +58,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Comfino\\": "tests/"
+			"Comfino\\Tests\\": "tests/"
 		}
 	},
 	"scripts": {

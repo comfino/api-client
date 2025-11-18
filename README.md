@@ -1,13 +1,14 @@
 # Comfino API Client
 
 [![Latest Version](https://img.shields.io/github/release/comfino/api-client.svg)](https://github.com/comfino/api-client/releases)
-[![Software License](https://img.shields.io/badge/license-BSD%203--Clause-orange.svg)](LICENSE)
+[![PHP Version](https://img.shields.io/packagist/php-v/comfino/api-client.svg)](https://packagist.org/packages/comfino/api-client)
 [![Build Status](https://github.com/comfino/api-client/actions/workflows/tests.yml/badge.svg)](https://github.com/comfino/api-client/actions/workflows/tests.yml)
+[![Software License](https://img.shields.io/badge/license-BSD%203--Clause-orange.svg)](LICENSE)
 [![Total Downloads](https://img.shields.io/packagist/dt/comfino/api-client.svg)](https://packagist.org/packages/comfino/api-client)
 
 **Comfino API client library**
 
-A modern PHP 8.2+ API client library for the Comfino payment gateway, built with PSR standards and established design patterns.
+Standard PHP API client library for the Comfino payment gateway.
 
 ## Features
 
@@ -80,21 +81,21 @@ $client->cancelOrder($orderId);
 
 ## Architecture
 
-### Core Components
+### Core components
 
 - **Client class** (`src/Api/Client.php`): Main entry point using dependency injection with PSR-18 HTTP Client interfaces.
 - **Request/Response pattern**: Each API operation has dedicated classes using Command pattern.
 - **Dual DTO layers**: API layer DTOs (readonly classes) and Shop domain layer (interface-based for flexibility).
 - **Environment support**: Configurable API hosts for production and sandbox.
 
-### Key Design Patterns
+### Key design patterns
 
 - **Abstract base classes**: `Request` and `Response` define common behavior.
 - **Strategy pattern**: Pluggable serializers through `SerializerInterface` (default: JSON),
 - **Interface contracts**: Shop integration through `OrderInterface`, `CartInterface`, `CustomerInterface`.
 - **Trait-based sharing**: Common functionality through traits like `CartTrait`.
 
-### Directory Structure
+### Directory structure
 
 ```
 src/
@@ -104,7 +105,7 @@ src/
 tests/            # PHPUnit tests with trait-based organization.
 ```
 
-### Error Handling
+### Error handling
 
 Exception hierarchy based on HTTP status codes:
 
@@ -127,7 +128,7 @@ All exceptions implement `HttpErrorExceptionInterface` and preserve request/resp
 ./bin/composer update
 ```
 
-### Running Tests
+### Running tests
 
 ```bash
 # Run all tests.

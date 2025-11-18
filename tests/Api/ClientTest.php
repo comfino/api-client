@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Comfino\Api;
+namespace Comfino\Tests\Api;
 
-use Comfino\ClientTestTrait;
+use Comfino\Tests\ClientTestTrait;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 

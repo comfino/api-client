@@ -13,7 +13,7 @@ class Json implements SerializerInterface
     public function serialize(mixed $requestData): string
     {
         try {
-            $serializedRequestBody = json_encode($requestData, JSON_THROW_ON_ERROR);
+            $serializedRequestBody = json_encode($requestData, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
         } catch (\JsonException $e) {
             throw new RequestValidationError("Invalid request data: {$e->getMessage()}", 0, $e);
         }

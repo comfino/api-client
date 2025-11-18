@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- GitHub Actions CI/CD workflow for automated testing across PHP 8.2, 8.3, and 8.4.
+- Request validation headers for order creation: `Comfino-Cart-Hash`, `Comfino-Customer-Hash`, and `Comfino-Order-Signature`.
+- Instance-level caching for prepared request bodies to prevent test contamination.
+
+### Changed
+- Package description simplified to "Standard PHP API client library".
+- Test namespace updated from `Comfino\` to `Comfino\Tests\` for better organization.
+- JSON serialization now uses `JSON_PRESERVE_ZERO_FRACTION` flag for deterministic hash generation.
+- `CreateOrder` constructor now requires API key parameter for signature generation.
+- README.md structure improvements and badge reordering.
+
+### Fixed
+- Static variable caching issue in request classes replaced with instance properties.
+- Test isolation issues by properly namespacing test classes.
+
 ## [1.1.0] - 2025-10-24
 
 ### Added

@@ -361,7 +361,7 @@ class Client
      */
     public function createOrder(OrderInterface $order): CreateOrderResponse
     {
-        $this->request = (new CreateOrderRequest($order))->setSerializer($this->serializer);
+        $this->request = (new CreateOrderRequest($order, $this->apiKey ?? ''))->setSerializer($this->serializer);
 
         return new CreateOrderResponse($this->request, $this->sendRequest($this->request), $this->serializer);
     }
@@ -376,7 +376,7 @@ class Client
     public function validateOrder(OrderInterface $order): ValidateOrderResponse
     {
         try {
-            $this->request = (new CreateOrderRequest($order, true))->setSerializer($this->serializer);
+            $this->request = (new CreateOrderRequest($order, $this->apiKey ?? '', true))->setSerializer($this->serializer);
 
             return new ValidateOrderResponse($this->request, $this->sendRequest($this->request), $this->serializer);
         } catch (\Throwable $e) {

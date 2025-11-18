@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Comfino;
+namespace Comfino\Tests;
 
+use Comfino\Enum;
 use PHPUnit\Framework\TestCase;
 
 readonly class TestedEnum extends Enum
