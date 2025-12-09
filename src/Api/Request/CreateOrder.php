@@ -122,7 +122,7 @@ class CreateOrder extends Request
     private function generateHash(array $data): string
     {
         try {
-            return md5(json_encode($data, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION));
+            return hash('sha3-256', json_encode($data, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION));
         } catch (\JsonException) {
             return '';
         }

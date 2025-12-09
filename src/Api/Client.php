@@ -240,7 +240,7 @@ class Client
      */
     public function setClientHostName(string $host): void
     {
-        if (($filteredHost = filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false)) {
+        if (($filteredHost = filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) === false) {
             $filteredHost = gethostname();
         }
 

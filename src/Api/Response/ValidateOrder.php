@@ -30,14 +30,14 @@ class ValidateOrder extends Base
     /**
      * @inheritDoc
      */
-    public function __construct(Request $request, ResponseInterface $response, SerializerInterface $serializer, ?\Throwable $exception = null)
+    public function __construct(Request $request, ?ResponseInterface $response, SerializerInterface $serializer, ?\Throwable $exception = null)
     {
         parent::__construct($request, $response, $serializer, $exception);
 
         $this->trackId = ($this->headers['Comfino-Track-Id'] ?? '');
         $this->success = ($exception === null);
 
-        $httpStatusCode = $response->getStatusCode();
+        $httpStatusCode = $response?->getStatusCode() ?? 0;
         $errors = [];
         $isNetworkError = false;
         $errorCode = 0;

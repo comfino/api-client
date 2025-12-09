@@ -15,8 +15,8 @@ abstract class Response
 {
     /** @var Request Comfino API client request object associated with this response. */
     protected Request $request;
-    /** @var ResponseInterface PSR-7 compatible HTTP response object. */
-    protected ResponseInterface $response;
+    /** @var ResponseInterface|null PSR-7 compatible HTTP response object. */
+    protected ?ResponseInterface $response;
     /** @var SerializerInterface Serializer/deserializer object for requests and responses body. */
     protected SerializerInterface $serializer;
     /** @var \Throwable|null Exception object in case of validation or communication error. */
@@ -92,6 +92,11 @@ abstract class Response
      */
     final protected function initFromPsrResponse(): self
     {
+        // Handle null response (network errors, connection failures, etc.).
+        if ($this->response === null) {
+            return $this;
+        }
+
         $requestBody = ($this->request->getRequestBody() ?? '');
 
         $this->response->getBody()->rewind();
@@ -108,7 +113,7 @@ abstract class Response
             return $this;
         }
 
-        if ($this->response->hasHeader('Content-Type') && strpos($this->response->getHeader('Content-Type')[0], 'application/json') !== false) {
+        if ($this->response->hasHeader('Content-Type') && str_contains($this->response->getHeader('Content-Type')[0], 'application/json')) {
             try {
                 $deserializedResponseBody = $this->deserializeResponseBody($responseBody, $this->serializer);
             } catch (ResponseValidationError $e) {

@@ -18,7 +18,7 @@ class Base extends Response
 {
     /**
      * @param Request $request Comfino API client request object associated with this response.
-     * @param ResponseInterface $response PSR-7 compatible HTTP response object.
+     * @param ResponseInterface|null $response PSR-7 compatible HTTP response object.
      * @param SerializerInterface $serializer Serializer/deserializer object for requests and responses body.
      * @param \Throwable|null $exception Exception object in case of validation or communication error.
      *
@@ -28,7 +28,7 @@ class Base extends Response
      * @throws AccessDenied
      * @throws ServiceUnavailable
      */
-    public function __construct(Request $request, ResponseInterface $response, SerializerInterface $serializer, ?\Throwable $exception = null)
+    public function __construct(Request $request, ?ResponseInterface $response, SerializerInterface $serializer, ?\Throwable $exception = null)
     {
         $this->request = $request;
         $this->response = $response;
@@ -79,7 +79,7 @@ class Base extends Response
      */
     protected function checkResponseStructure(array $deserializedResponseBody, array $expectedKeys): void
     {
-        if (count($responseKeysDiff = array_diff($expectedKeys, array_keys($deserializedResponseBody))) > 0) {var_dump($deserializedResponseBody);
+        if (count($responseKeysDiff = array_diff($expectedKeys, array_keys($deserializedResponseBody))) > 0) {
             throw new ResponseValidationError('Invalid response data structure: missing fields: ' . implode(', ', $responseKeysDiff));
         }
     }

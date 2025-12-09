@@ -225,9 +225,9 @@ trait ClientTestTrait
             200,
             'application/json',
             [
-                'Comfino-Cart-Hash' => 'c0b655bd11bfd88669a97f16c775ef83',
-                'Comfino-Customer-Hash' => 'cffc13aea6c5f446f7edcc935cec5f0b',
-                'Comfino-Order-Signature' => '984c2aa38d7eaa431aae6862048a31a58e9aa18e7428a25adc108c4e88bb045c',
+                'Comfino-Cart-Hash' => 'fffd2c3643bdf052af7f46195b17b7fe0269915132fdf503943f7a50d44072e7',
+                'Comfino-Customer-Hash' => 'f798d455fa54ecf3f159d109e8b1bae926ca513b722b768b25dad15ff2bcd549',
+                'Comfino-Order-Signature' => '11f8ad0228d099236013f964d24f2f52f15a4022172ebddee2179c266382cd61',
             ]
         );
 
@@ -288,9 +288,9 @@ trait ClientTestTrait
             400,
             'application/json',
             [
-                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
-                'Comfino-Customer-Hash' => '6abe8d5dc9292762306c34c6bf864ea0',
-                'Comfino-Order-Signature' => '2ab660611438ee77197bbbe15ee27af2e6a438c6e2e053eb81890860dc93bd10',
+                'Comfino-Cart-Hash' => '03defca2c50ed84c5528463d0e1c3a27bb9b7c5b126f845c9e2b657dc83f0b70',
+                'Comfino-Customer-Hash' => '092271cdf2f24da54361982a047a25be73bea573ff7a7ab5ff1fe74622621a07',
+                'Comfino-Order-Signature' => 'e3f27a6169ff7ae0c35e10c8207e5e2f6d71e178aec7ef32d2570d450da84e67',
             ]
         );
 
@@ -343,9 +343,9 @@ trait ClientTestTrait
             400,
             'application/json',
             [
-                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
-                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
-                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+                'Comfino-Cart-Hash' => '03defca2c50ed84c5528463d0e1c3a27bb9b7c5b126f845c9e2b657dc83f0b70',
+                'Comfino-Customer-Hash' => '0336d71a70ab130db829c97aae5209a0dfb62cf3a98a14a4ac63a7e55f8d4f63',
+                'Comfino-Order-Signature' => 'ef11cb92629823d40c0d00267646776292583a4e0b5ae029a7525bce46e539fa',
             ]
         );
 
@@ -717,9 +717,9 @@ trait ClientTestTrait
             200,
             'application/json',
             [
-                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
-                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
-                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+                'Comfino-Cart-Hash' => '03defca2c50ed84c5528463d0e1c3a27bb9b7c5b126f845c9e2b657dc83f0b70',
+                'Comfino-Customer-Hash' => '0336d71a70ab130db829c97aae5209a0dfb62cf3a98a14a4ac63a7e55f8d4f63',
+                'Comfino-Order-Signature' => 'ef11cb92629823d40c0d00267646776292583a4e0b5ae029a7525bce46e539fa',
             ]
         );
 
@@ -770,9 +770,9 @@ trait ClientTestTrait
             400,
             'application/json',
             [
-                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
-                'Comfino-Customer-Hash' => '6abe8d5dc9292762306c34c6bf864ea0',
-                'Comfino-Order-Signature' => '2ab660611438ee77197bbbe15ee27af2e6a438c6e2e053eb81890860dc93bd10',
+                'Comfino-Cart-Hash' => '03defca2c50ed84c5528463d0e1c3a27bb9b7c5b126f845c9e2b657dc83f0b70',
+                'Comfino-Customer-Hash' => '092271cdf2f24da54361982a047a25be73bea573ff7a7ab5ff1fe74622621a07',
+                'Comfino-Order-Signature' => 'e3f27a6169ff7ae0c35e10c8207e5e2f6d71e178aec7ef32d2570d450da84e67',
             ]
         );
 
@@ -826,9 +826,9 @@ trait ClientTestTrait
             400,
             'application/json',
             [
-                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
-                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
-                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+                'Comfino-Cart-Hash' => '03defca2c50ed84c5528463d0e1c3a27bb9b7c5b126f845c9e2b657dc83f0b70',
+                'Comfino-Customer-Hash' => '0336d71a70ab130db829c97aae5209a0dfb62cf3a98a14a4ac63a7e55f8d4f63',
+                'Comfino-Order-Signature' => 'ef11cb92629823d40c0d00267646776292583a4e0b5ae029a7525bce46e539fa',
             ]
         );
 
@@ -880,9 +880,9 @@ trait ClientTestTrait
             400,
             'application/json',
             [
-                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
-                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
-                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+                'Comfino-Cart-Hash' => '03defca2c50ed84c5528463d0e1c3a27bb9b7c5b126f845c9e2b657dc83f0b70',
+                'Comfino-Customer-Hash' => '0336d71a70ab130db829c97aae5209a0dfb62cf3a98a14a4ac63a7e55f8d4f63',
+                'Comfino-Order-Signature' => 'ef11cb92629823d40c0d00267646776292583a4e0b5ae029a7525bce46e539fa',
             ]
         );
 
@@ -934,9 +934,9 @@ trait ClientTestTrait
             400,
             'application/json',
             [
-                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
-                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
-                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+                'Comfino-Cart-Hash' => '03defca2c50ed84c5528463d0e1c3a27bb9b7c5b126f845c9e2b657dc83f0b70',
+                'Comfino-Customer-Hash' => '0336d71a70ab130db829c97aae5209a0dfb62cf3a98a14a4ac63a7e55f8d4f63',
+                'Comfino-Order-Signature' => 'ef11cb92629823d40c0d00267646776292583a4e0b5ae029a7525bce46e539fa',
             ]
         );
 
@@ -992,9 +992,9 @@ trait ClientTestTrait
             202,
             'application/json',
             [
-                'Comfino-Cart-Hash' => 'dc5820e3ed36aef42f5a828a56886a1f',
-                'Comfino-Customer-Hash' => '0c5972ec3075bee39306607f9a7c46d9',
-                'Comfino-Order-Signature' => '8b1d05c407fb05d157b9ae99d9ee36e82fe382a5d247d096ad66efbf4a972856',
+                'Comfino-Cart-Hash' => '03defca2c50ed84c5528463d0e1c3a27bb9b7c5b126f845c9e2b657dc83f0b70',
+                'Comfino-Customer-Hash' => '0336d71a70ab130db829c97aae5209a0dfb62cf3a98a14a4ac63a7e55f8d4f63',
+                'Comfino-Order-Signature' => 'ef11cb92629823d40c0d00267646776292583a4e0b5ae029a7525bce46e539fa',
             ]
         );
 
