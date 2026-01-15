@@ -1372,7 +1372,7 @@ trait ClientTestTrait
         $queryCriteria = new LoanQueryCriteria(100000);
 
         $this->expectException(ServiceUnavailable::class);
-        $this->expectExceptionCode(0);
+        $this->expectExceptionCode(500);
 
         $apiClient = $this->initApiClient(
             '/v1/financial-products',
