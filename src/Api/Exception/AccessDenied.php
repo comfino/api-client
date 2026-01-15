@@ -12,13 +12,16 @@ class AccessDenied extends \RuntimeException implements HttpErrorExceptionInterf
     private string $url;
     /** @var string */
     private string $requestBody;
+    /** @var string */
+    private string $responseBody;
 
-    public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null, string $url = '', string $requestBody = '')
+    public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null, string $url = '', string $requestBody = '', string $responseBody = '')
     {
         parent::__construct($message, $code, $previous);
 
         $this->url = $url;
         $this->requestBody = $requestBody;
+        $this->responseBody = $responseBody;
     }
 
     public function getUrl(): string
@@ -43,11 +46,12 @@ class AccessDenied extends \RuntimeException implements HttpErrorExceptionInterf
 
     public function getResponseBody(): string
     {
-        return '';
+        return $this->responseBody;
     }
 
     public function setResponseBody(string $responseBody): void
     {
+        $this->responseBody = $responseBody;
     }
 
     public function getStatusCode(): int
