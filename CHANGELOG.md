@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-05-08
+
+> **This is the final release of `comfino/api-client`.** The library is now End of Life (EOL) and the repository has been archived. Migrate to [`comfino/php-api-client`](https://packagist.org/packages/comfino/php-api-client).
+
+### Added
+- New `AllowedProductConfig` DTO (`src/Api/Dto/Payment/AllowedProductConfig.php`) — holds per-product term constraints (`type`, `maxTerm`, `minTerm`, `terms`).
+- `allowedProductsConfig` optional query parameter for `GET /v1/financial-products` (`LoanQueryCriteria`) — appended as a PHP/URL-style indexed array (`allowedProductsConfig[n][type]`, `allowedProductsConfig[n][maxTerm]`, …).
+- `allowedProductsConfig` optional body field for `POST /v1/orders` — serialized as a JSON array of objects; only non-null constraint fields are included.
+- `getAllowedProductsConfig(): ?array` method on `OrderInterface` and `Order`.
+
+### Deprecated
+- This package (`comfino/api-client`) is deprecated in favour of [`comfino/php-api-client`](https://packagist.org/packages/comfino/php-api-client). No further releases are planned.
+
 ## [1.1.2] - 2026-01-15
 
 ### Added
@@ -109,7 +122,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Composer scripts for testing and development.
 - BSD-3-Clause license.
 
-[Unreleased]: https://github.com/comfino/api-client/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/comfino/api-client/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/comfino/api-client/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/comfino/api-client/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/comfino/api-client/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/comfino/api-client/compare/v1.0.0...v1.1.0

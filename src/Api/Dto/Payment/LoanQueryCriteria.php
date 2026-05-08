@@ -18,6 +18,8 @@ readonly class LoanQueryCriteria
     public ?array $productTypes;
     /** @var string|null */
     public ?string $taxId;
+    /** @var AllowedProductConfig[]|null */
+    public ?array $allowedProductsConfig;
 
     /**
      * @param int $loanAmount
@@ -26,8 +28,9 @@ readonly class LoanQueryCriteria
      * @param int|null $priceModifier
      * @param LoanTypeEnum[]|null $productTypes
      * @param string|null $taxId
+     * @param AllowedProductConfig[]|null $allowedProductsConfig
      */
-    public function __construct(int $loanAmount, ?int $loanTerm = null, ?LoanTypeEnum $loanType = null, ?int $priceModifier = null, ?array $productTypes = null, ?string $taxId = null)
+    public function __construct(int $loanAmount, ?int $loanTerm = null, ?LoanTypeEnum $loanType = null, ?int $priceModifier = null, ?array $productTypes = null, ?string $taxId = null, ?array $allowedProductsConfig = null)
     {
         $this->loanAmount = $loanAmount;
         $this->loanTerm = $loanTerm;
@@ -35,5 +38,6 @@ readonly class LoanQueryCriteria
         $this->priceModifier = $priceModifier;
         $this->productTypes = $productTypes;
         $this->taxId = $taxId;
+        $this->allowedProductsConfig = $allowedProductsConfig;
     }
 }

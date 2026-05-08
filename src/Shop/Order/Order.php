@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Comfino\Shop\Order;
 
+use Comfino\Api\Dto\Payment\AllowedProductConfig;
+
 readonly class Order implements OrderInterface
 {
     /**
@@ -16,6 +18,7 @@ readonly class Order implements OrderInterface
      * @param SellerInterface|null $seller
      * @param string|null $accountNumber
      * @param string|null $transferTitle
+     * @param AllowedProductConfig[]|null $allowedProductsConfig
      */
     public function __construct(
         private string $id,
@@ -26,7 +29,8 @@ readonly class Order implements OrderInterface
         private ?string $notifyUrl = null,
         private ?SellerInterface $seller = null,
         private ?string $accountNumber = null,
-        private ?string $transferTitle = null
+        private ?string $transferTitle = null,
+        private ?array $allowedProductsConfig = null
     ) { }
 
     /**
@@ -99,5 +103,13 @@ readonly class Order implements OrderInterface
     public function getTransferTitle(): ?string
     {
         return $this->transferTitle !== null ? trim(html_entity_decode(strip_tags($this->transferTitle))) : null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAllowedProductsConfig(): ?array
+    {
+        return $this->allowedProductsConfig;
     }
 }

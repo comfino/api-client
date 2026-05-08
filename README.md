@@ -6,6 +6,24 @@
 [![Software License](https://img.shields.io/badge/license-BSD%203--Clause-orange.svg)](LICENSE)
 [![Total Downloads](https://img.shields.io/packagist/dt/comfino/api-client.svg)](https://packagist.org/packages/comfino/api-client)
 
+> [!WARNING]
+> **This package is deprecated and no longer maintained.**
+>
+> `comfino/api-client` has reached End of Life with the v1.2.0 release. This repository is archived and read-only — no further bug fixes, security patches, or features will be published.
+>
+> **Please migrate to the actively developed successor:**
+>
+> ```bash
+> composer require comfino/php-api-client
+> ```
+>
+> - Packagist: [comfino/php-api-client](https://packagist.org/packages/comfino/php-api-client)
+> - GitHub: [comfino/php-api-client](https://github.com/comfino/php-api-client)
+>
+> The successor requires PHP 8.1+ and introduces exponential backoff retry, HMAC-signed authentication tokens, CR-Signature (SHA3-256) webhook verification, and forward-compatible enum handling.
+
+---
+
 **Comfino API client library**
 
 Standard PHP API client library for the Comfino payment gateway.

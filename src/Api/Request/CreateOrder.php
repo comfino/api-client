@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Comfino\Api\Request;
 
+use Comfino\Api\Dto\Payment\AllowedProductConfig;
 use Comfino\Api\Request;
 use Comfino\Shop\Order\CartTrait;
 use Comfino\Shop\Order\OrderInterface;
@@ -112,6 +113,20 @@ class CreateOrder extends Request
                 'accountNumber' => $this->order->getAccountNumber(),
                 'transferTitle' => $this->order->getTransferTitle(),
                 'simulation' => $this->validateOnly ?: null,
+
+                // Per-product term constraints (optional)
+                'allowedProductsConfig' => ($configs = $this->order->getAllowedProductsConfig()) !== null
+                    ? array_map(
+                        static function (AllowedProductConfig $c): array {
+                            $entry = ['type' => (string) $c->type];
+                            if ($c->maxTerm !== null) { $entry['maxTerm'] = $c->maxTerm; }
+                            if ($c->minTerm !== null) { $entry['minTerm'] = $c->minTerm; }
+                            if ($c->terms !== null)   { $entry['terms']   = $c->terms;   }
+                            return $entry;
+                        },
+                        $configs
+                    )
+                    : null,
             ],
             static fn ($value): bool => $value !== null
         );

@@ -44,4 +44,7 @@ interface OrderInterface
 
     /** @return string|null */
     public function getTransferTitle(): ?string;
+
+    /** @return \Comfino\Api\Dto\Payment\AllowedProductConfig[]|null */
+    public function getAllowedProductsConfig(): ?array;
 }
