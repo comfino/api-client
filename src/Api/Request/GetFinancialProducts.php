@@ -50,20 +50,25 @@ class GetFinancialProducts extends Request
         $uri = parent::getApiEndpointUri($apiHost, $apiVersion);
 
         if (!empty($this->allowedProductsConfig)) {
-            $configs = [];
-            foreach ($this->allowedProductsConfig as $i => $config) {
-                $entry = ['type' => (string) $config->type];
-                if ($config->maxTerm !== null) {
-                    $entry['maxTerm'] = $config->maxTerm;
-                }
-                if ($config->minTerm !== null) {
-                    $entry['minTerm'] = $config->minTerm;
-                }
-                if ($config->terms !== null) {
-                    $entry['terms'] = $config->terms;
-                }
-                $configs[$i] = $entry;
-            }
+            $configs = array_map(
+                static function (AllowedProductConfig $prodConfig): array {
+                    $entry = ['type' => (string) $prodConfig->type];
+
+                    if ($prodConfig->maxTerm !== null) {
+                        $entry['maxTerm'] = $prodConfig->maxTerm;
+                    }
+                    if ($prodConfig->minTerm !== null) {
+                        $entry['minTerm'] = $prodConfig->minTerm;
+                    }
+                    if ($prodConfig->terms !== null) {
+                        $entry['terms'] = $prodConfig->terms;
+                    }
+
+                    return $entry;
+                },
+                $this->allowedProductsConfig
+            );
+
             $separator = str_contains($uri, '?') ? '&' : '?';
             $uri .= $separator . http_build_query(['allowedProductsConfig' => $configs]);
         }

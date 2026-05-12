@@ -117,11 +117,19 @@ class CreateOrder extends Request
                 // Per-product term constraints (optional)
                 'allowedProductsConfig' => ($configs = $this->order->getAllowedProductsConfig()) !== null
                     ? array_map(
-                        static function (AllowedProductConfig $c): array {
-                            $entry = ['type' => (string) $c->type];
-                            if ($c->maxTerm !== null) { $entry['maxTerm'] = $c->maxTerm; }
-                            if ($c->minTerm !== null) { $entry['minTerm'] = $c->minTerm; }
-                            if ($c->terms !== null)   { $entry['terms']   = $c->terms;   }
+                        static function (AllowedProductConfig $prodConfig): array {
+                            $entry = ['type' => (string) $prodConfig->type];
+
+                            if ($prodConfig->maxTerm !== null) {
+                                $entry['maxTerm'] = $prodConfig->maxTerm;
+                            }
+                            if ($prodConfig->minTerm !== null) {
+                                $entry['minTerm'] = $prodConfig->minTerm;
+                            }
+                            if ($prodConfig->terms !== null) {
+                                $entry['terms'] = $prodConfig->terms;
+                            }
+
                             return $entry;
                         },
                         $configs
