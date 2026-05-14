@@ -46,7 +46,6 @@
 		"phpunit/phpunit": "^11.1",
 		"phpspec/prophecy-phpunit": "^2.2",
 		"php-http/mock-client": "^1.6",
-		"sunrise/http-factory": "^2.0",
 		"nyholm/psr7": "^1.8"
 	},
 	"autoload": {

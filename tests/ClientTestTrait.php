@@ -34,9 +34,7 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use Sunrise\Http\Factory\ResponseFactory;
-use Sunrise\Http\Factory\StreamFactory;
-use Sunrise\Http\Factory\RequestFactory;
+use Nyholm\Psr7\Factory\Psr17Factory;
 
 trait ClientTestTrait
 {
@@ -1651,13 +1649,15 @@ trait ClientTestTrait
             fn (RequestInterface $request) => $this->processRequest($request, $queryParameters, $requestBody, $responseData, $apiKey, $isPublicEndpoint, $responseStatus, $contentType, $expectedHeaders)
         );
 
-        return new Client(new RequestFactory(), new StreamFactory(), $client, $apiKey);
+        $factory = new Psr17Factory();
+
+        return new Client($factory, $factory, $client, $apiKey);
     }
 
     private function processRequest(RequestInterface $request, ?array $queryParameters = null, ?string $requestBody = null, $responseData = null, ?string $apiKey = null, bool $isPublicEndpoint = false, int $responseStatus = 200, string $contentType = 'application/json', ?array $expectedHeaders = null): ResponseInterface
     {
         if (!$isPublicEndpoint && (!$request->hasHeader('Api-Key') || $request->getHeaderLine('Api-Key') !== $apiKey)) {
-            return (new ResponseFactory())->createJsonResponse(401, ['message' => 'Invalid credentials.']);
+            return $this->buildMockResponse(401, ['message' => 'Invalid credentials.'], 'application/json');
         }
 
         if ($requestBody !== null) {
@@ -1679,14 +1679,19 @@ trait ClientTestTrait
             }
         }
 
-        if ($contentType === 'application/json') {
-            return (new ResponseFactory())->createJsonResponse($responseStatus, $responseData);
-        }
+        return $this->buildMockResponse($responseStatus, $responseData, $contentType);
+    }
 
-        if ($contentType === 'text/html') {
-            return (new ResponseFactory())->createHtmlResponse($responseStatus, $responseData);
-        }
+    private function buildMockResponse(int $status, mixed $data, string $contentType): ResponseInterface
+    {
+        $factory = new Psr17Factory();
+        $body = match ($contentType) {
+            'application/json' => json_encode($data),
+            default => is_string($data) ? $data : (string) $data,
+        };
 
-        return (new ResponseFactory())->createResponse($responseStatus, $responseData)->withHeader('Content-Type', $contentType);
+        return $factory->createResponse($status)
+            ->withHeader('Content-Type', $contentType)
+            ->withBody($factory->createStream($body));
     }
 }
