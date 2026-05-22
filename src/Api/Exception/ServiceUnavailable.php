@@ -8,6 +8,8 @@ use Comfino\Api\HttpErrorExceptionInterface;
 
 class ServiceUnavailable extends \RuntimeException implements HttpErrorExceptionInterface
 {
+    use SensitiveHttpExceptionTrait;
+
     /** @var string */
     private string $url;
     /** @var string */

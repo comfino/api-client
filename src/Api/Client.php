@@ -18,7 +18,9 @@ use Comfino\Api\Request\GetFinancialProducts as GetFinancialProductsRequest;
 use Comfino\Api\Request\GetOrder as GetOrderRequest;
 use Comfino\Api\Request\GetPaywall as GetPaywallRequest;
 use Comfino\Api\Request\GetPaywallItemDetails as GetPaywallItemDetailsRequest;
+use Comfino\Api\Dto\Plugin\ShopEnvironmentReport;
 use Comfino\Api\Request\GetCreditors as GetCreditorsRequest;
+use Comfino\Api\Request\ReportShopEnvironment as ReportShopEnvironmentRequest;
 use Comfino\Api\Request\GetProductTypes as GetProductTypesRequest;
 use Comfino\Api\Request\GetWidgetKey as GetWidgetKeyRequest;
 use Comfino\Api\Request\GetWidgetTypes as GetWidgetTypesRequest;
@@ -93,8 +95,10 @@ class Client
         protected ClientInterface $client,
         protected ?string $apiKey,
         protected int $apiVersion = 1,
-        protected ?SerializerInterface $serializer = null ?? new JsonSerializer()
-    ) { }
+        protected ?SerializerInterface $serializer = null
+    ) {
+        $this->serializer ??= new JsonSerializer();
+    }
 
     /**
      * Sets custom request/response serializer.
@@ -230,6 +234,22 @@ class Client
      */
     public function addCustomHeader(string $headerName, string $headerValue): void
     {
+        /* Defensive HTTP header injection guard. PSR-7 implementations should reject CR/LF in header names and values,
+           but older Guzzle 6 / Slim 3 / handcrafted adapters bundled with legacy PHP 7.1 plugins do not all enforce
+           this. Reject any control character in the name and any CR/LF in the value to prevent header smuggling or
+           response splitting. */
+        if (preg_match('/^[!#$%&\'*+\-.^_`|~0-9A-Za-z]+$/', $headerName) !== 1) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid HTTP header name: "%s".', $headerName)
+            );
+        }
+
+        if (preg_match('/[\r\n\x00]/', $headerValue) === 1) {
+            throw new \InvalidArgumentException(
+                sprintf('HTTP header "%s" value contains illegal control characters.', $headerName)
+            );
+        }
+
         $this->customHeaders[$headerName] = $headerValue;
     }
 
@@ -428,6 +448,28 @@ class Client
         $this->request = (new CancelOrderRequest($orderId))->setSerializer($this->serializer);
 
         new BaseApiResponse($this->request, $this->sendRequest($this->request), $this->serializer);
+    }
+
+    /**
+     * Reports structured shop environment to the API server-to-server.
+     *
+     * Fire-and-forget: any transport, validation, or server error is swallowed and surfaced as a false return.
+     *
+     * @param ShopEnvironmentReport $report Structured environment report
+     *
+     * @return bool True if the report was successfully accepted, false otherwise
+     */
+    public function reportShopEnvironment(ShopEnvironmentReport $report): bool
+    {
+        try {
+            $this->request = (new ReportShopEnvironmentRequest($report))->setSerializer($this->serializer);
+
+            new BaseApiResponse($this->request, $this->sendRequest($this->request), $this->serializer);
+        } catch (\Throwable) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

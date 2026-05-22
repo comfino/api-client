@@ -8,6 +8,8 @@ use Comfino\Api\HttpErrorExceptionInterface;
 
 class AuthorizationError extends \RuntimeException implements HttpErrorExceptionInterface
 {
+    use SensitiveHttpExceptionTrait;
+
     /** @var string */
     private string $url;
     /** @var string */

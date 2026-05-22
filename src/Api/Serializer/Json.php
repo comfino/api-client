@@ -18,6 +18,13 @@ class Json implements SerializerInterface
             throw new RequestValidationError("Invalid request data: {$e->getMessage()}", 0, $e);
         }
 
+        /* Defensive fallback for runtimes where JSON_THROW_ON_ERROR is unavailable (e.g., PHP 7.1 after Rector
+           transpilation strips the flag). On those runtimes json_encode() returns false on failure instead of throwing,
+           which would otherwise let a malformed payload be hashed/sent silently. */
+        if ($serializedRequestBody === false) {
+            throw new RequestValidationError('Invalid request data: ' . json_last_error_msg(), 0);
+        }
+
         return $serializedRequestBody;
     }
 
@@ -27,6 +34,15 @@ class Json implements SerializerInterface
             $deserializedResponseBody = json_decode($responseBody, true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             throw new ResponseValidationError("Invalid response data: {$e->getMessage()}", 0, $e, responseBody: $responseBody);
+        }
+
+        if ($deserializedResponseBody === null && json_last_error() !== JSON_ERROR_NONE) {
+            throw new ResponseValidationError(
+                'Invalid response data: ' . json_last_error_msg(),
+                0,
+                null,
+                responseBody: $responseBody
+            );
         }
 
         return $deserializedResponseBody;

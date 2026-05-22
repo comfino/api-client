@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Comfino\Api\Request;
 
 use Comfino\Api\Dto\Payment\AllowedProductConfig;
+use Comfino\Api\Exception\RequestValidationError;
 use Comfino\Api\Request;
 use Comfino\Shop\Order\CartTrait;
 use Comfino\Shop\Order\OrderInterface;
@@ -145,9 +146,25 @@ class CreateOrder extends Request
     private function generateHash(array $data): string
     {
         try {
-            return hash('sha3-256', json_encode($data, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION));
-        } catch (\JsonException) {
-            return '';
+            $encoded = json_encode($data, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
+        } catch (\JsonException $e) {
+            throw new RequestValidationError(
+                'Failed to serialize order data for integrity hashing: ' . $e->getMessage(),
+                0,
+                $e
+            );
         }
+
+        /* Defensive fallback for runtimes where JSON_THROW_ON_ERROR is unavailable (e.g., PHP 7.1 after Rector
+           transpilation strips the flag). Without this check json_encode() returning false would be coerced to "" and
+           produce a predictable, attacker-replayable signature hash. */
+        if ($encoded === false) {
+            throw new RequestValidationError(
+                'Failed to serialize order data for integrity hashing: ' . json_last_error_msg(),
+                0
+            );
+        }
+
+        return hash('sha3-256', $encoded);
     }
 }

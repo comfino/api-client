@@ -9,6 +9,8 @@ use Psr\Http\Message\ResponseInterface;
 
 class RequestValidationError extends \LogicException implements HttpErrorExceptionInterface
 {
+    use SensitiveHttpExceptionTrait;
+
     /** @var string */
     private string $url;
     /** @var string */

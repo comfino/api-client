@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.2.0] - 2026-05-08
+## [1.2.0] - 2026-05-25
 
 > **This is the final release of `comfino/api-client`.** The library is now End of Life (EOL) and the repository has been archived. Migrate to [`comfino/php-api-client`](https://packagist.org/packages/comfino/php-api-client).
 
@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `allowedProductsConfig` optional query parameter for `GET /v1/financial-products` (`LoanQueryCriteria`) — appended as a PHP/URL-style indexed array (`allowedProductsConfig[n][type]`, `allowedProductsConfig[n][maxTerm]`, …).
 - `allowedProductsConfig` optional body field for `POST /v1/orders` — serialized as a JSON array of objects; only non-null constraint fields are included.
 - `getAllowedProductsConfig(): ?array` method on `OrderInterface` and `Order`.
+- New `reportShopEnvironment(ShopEnvironmentReport $report): bool` method on `Client` for reporting shop platform metadata server-to-server (fire-and-forget, returns `false` on any error).
+- New `ShopEnvironmentReport` and `ShopTheme` DTOs (`src/Api/Dto/Plugin/`) describing the shop platform, theme, locale, currency, capabilities, and optional metadata.
+- New `SensitiveDataRedactor` utility class (`src/Api/SensitiveDataRedactor.php`) that masks PII fields (e-mail, phone, tax ID, address, credentials, etc.) in JSON payloads — safe to use before logging or forwarding to error-tracking systems.
+- New `SensitiveHttpExceptionTrait` — applied to all HTTP exception classes; adds `getRedactedRequestBody()` / `getRedactedResponseBody()` methods and overrides `__debugInfo()` so that `var_dump` / `print_r` / Sentry default serializer never leak customer PII.
+- New `UrlValidator` utility (`src/Api/UrlValidator.php`) — validates callback URLs passed as HTTP headers (`Comfino-Recalculation-Url`, `Comfino-Cache-Invalidate-Url`, `Comfino-Configuration-Url`) for valid `http`/`https` scheme and absence of header-injection control characters.
+- HTTP header name/value injection guard in `Client::addCustomHeader()` — rejects names with non-token characters and values containing CR/LF/NUL.
+
+### Changed
+- `generateHash()` in `CreateOrder` now throws `RequestValidationError` instead of silently returning an empty string when JSON serialization fails, preventing an attacker-replayable empty-hash signature.
+- `Json` serializer raises `RequestValidationError` / `ResponseValidationError` when `json_encode()` returns `false` (defensive fallback for transpiled PHP 7.1 runtimes).
+- Order ID is now URL-encoded (`rawurlencode`) in `GetOrder` and `CancelOrder` request paths to prevent path-segment injection.
+
+### Fixed
+- Callback URLs passed to `GetPaywall` and `IsShopAccountActive` are now validated before being forwarded as HTTP headers, preventing header-smuggling via malformed URLs.
 
 ### Deprecated
 - This package (`comfino/api-client`) is deprecated in favour of [`comfino/php-api-client`](https://packagist.org/packages/comfino/php-api-client). No further releases are planned.

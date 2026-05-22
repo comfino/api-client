@@ -17,7 +17,7 @@ class CancelOrder extends Request
     public function __construct(string $orderId)
     {
         $this->setRequestMethod('PUT');
-        $this->setApiEndpointPath(sprintf('orders/%s/cancel', $orderId));
+        $this->setApiEndpointPath(sprintf('orders/%s/cancel', rawurlencode($orderId)));
     }
 
     /**
