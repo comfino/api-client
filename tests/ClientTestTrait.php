@@ -1252,6 +1252,91 @@ trait ClientTestTrait
      * @throws Exception
      * @throws \ReflectionException
      */
+    public function testSetTrackIdReusesInjectedValue(): void
+    {
+        $apiClient = new Client(
+            $this->createMock(RequestFactoryInterface::class),
+            $this->createMock(StreamFactoryInterface::class),
+            $this->createMock(ClientInterface::class),
+            'TEST-API-KEY'
+        );
+
+        $apiClient->setTrackId('checkout-cookie-track-id');
+
+        $this->assertEquals('checkout-cookie-track-id', $this->getPropertyValue($apiClient, 'trackId'));
+        $this->assertEquals('checkout-cookie-track-id', $apiClient->getTrackId());
+    }
+
+    /**
+     * @throws Exception
+     * @throws \ReflectionException
+     */
+    public function testSetTrackIdRejectsInvalidValue(): void
+    {
+        $apiClient = new Client(
+            $this->createMock(RequestFactoryInterface::class),
+            $this->createMock(StreamFactoryInterface::class),
+            $this->createMock(ClientInterface::class),
+            'TEST-API-KEY'
+        );
+
+        // CRLF injection attempt, oversized value and empty string must all be rejected.
+        $apiClient->setTrackId("evil\r\nSet-Cookie: pwned=1");
+        $this->assertNull($this->getPropertyValue($apiClient, 'trackId'));
+
+        $apiClient->setTrackId(str_repeat('a', 129));
+        $this->assertNull($this->getPropertyValue($apiClient, 'trackId'));
+
+        $apiClient->setTrackId('');
+        $this->assertNull($this->getPropertyValue($apiClient, 'trackId'));
+    }
+
+    /**
+     * @throws Exception
+     * @throws \ReflectionException
+     */
+    public function testSetTrackIdIsNoOpOnceMinted(): void
+    {
+        $apiClient = new Client(
+            $this->createMock(RequestFactoryInterface::class),
+            $this->createMock(StreamFactoryInterface::class),
+            $this->createMock(ClientInterface::class),
+            'TEST-API-KEY'
+        );
+
+        $mintedTrackId = $apiClient->getTrackId();
+
+        $apiClient->setTrackId('should-not-overwrite');
+
+        $this->assertEquals($mintedTrackId, $this->getPropertyValue($apiClient, 'trackId'));
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testSetTrackIdIsReflectedInTrackIdHeader(): void
+    {
+        $apiClient = $this->initApiClient(
+            '/v1/user/is-active',
+            'GET',
+            null,
+            null,
+            true,
+            'API-KEY',
+            true,
+            200,
+            'application/json',
+            ['Comfino-Track-Id' => 'checkout-cookie-track-id']
+        );
+
+        $apiClient->setTrackId('checkout-cookie-track-id');
+        $apiClient->isShopAccountActive();
+    }
+
+    /**
+     * @throws Exception
+     * @throws \ReflectionException
+     */
     public function testSetClient(): void
     {
         $mockClient = $this->createMock(ClientInterface::class);

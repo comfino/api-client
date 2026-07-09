@@ -60,6 +60,12 @@ class Client
     public const PRODUCTION_HOST = 'https://api-ecommerce.comfino.pl';
     public const SANDBOX_HOST = 'https://api-ecommerce.craty.pl';
 
+    /**
+     * Allowlist pattern for a track ID accepted from untrusted input (e.g., a client-writable cookie).
+     * Mirrors the pattern enforced server-side on cookie read and client-side in the frontend SDK.
+     */
+    public const TRACK_ID_PATTERN = '/^[A-Za-z0-9_.:-]{1,128}$/';
+
     /** @var string */
     protected string $apiLanguage = 'pl';
     /** @var string */
@@ -605,6 +611,26 @@ class Client
     }
 
     /**
+     * Injects a track ID minted elsewhere (e.g., carried over from a checkout-scoped cookie) so it is reused instead of
+     * a freshly generated one.
+     *
+     * No-op once a track ID has already been minted or injected for this instance - a client must never silently swap
+     * its correlation ID mid-request. The value is validated against {@see TRACK_ID_PATTERN} here too, since it may
+     * originate from a client-writable cookie: a corrupted or attacker-controlled value must never reach the
+     * `Comfino-Track-Id` header or an order record.
+     *
+     * @param string|null $trackId Track ID to reuse, or null to leave the current state unchanged
+     */
+    public function setTrackId(?string $trackId): void
+    {
+        if ($this->trackId !== null || $trackId === null || preg_match(self::TRACK_ID_PATTERN, $trackId) !== 1) {
+            return;
+        }
+
+        $this->trackId = $trackId;
+    }
+
+    /**
      * @throws RequestValidationError
      * @throws ClientExceptionInterface
      */
@@ -647,9 +673,9 @@ class Client
         $base = !empty($this->clientHostName) ? $this->clientHostName : gethostname();
 
         if ($base === false) {
-            return 'trid-' . uniqid('', true);
+            return 'trid-' . bin2hex(random_bytes(8));
         }
 
-        return $base . '-' . microtime(true);
+        return $base . '-' . microtime(true) . '-' . bin2hex(random_bytes(4));
     }
 }
