@@ -521,10 +521,7 @@ trait ClientTestTrait
     public function testGetUserSettings(): void
     {
         $responseData = [
-            'flags' => [
-                ['name' => 'FLAG_ONE', 'attributes' => []],
-                ['name' => 'FLAG_TWO', 'attributes' => ['maxAmount' => 50000]],
-            ],
+            'flags' => ['FLAG_ONE' => [], 'FLAG_TWO' => ['maxAmount' => 50000]],
         ];
 
         $apiClient = $this->initApiClient('/v1/user/settings/flags', 'GET', null, null, $responseData, 'API-KEY');
