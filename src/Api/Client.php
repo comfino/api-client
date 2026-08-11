@@ -22,6 +22,7 @@ use Comfino\Api\Dto\Plugin\ShopEnvironmentReport;
 use Comfino\Api\Request\GetCreditors as GetCreditorsRequest;
 use Comfino\Api\Request\ReportShopEnvironment as ReportShopEnvironmentRequest;
 use Comfino\Api\Request\GetProductTypes as GetProductTypesRequest;
+use Comfino\Api\Request\GetUserSettings as GetUserSettingsRequest;
 use Comfino\Api\Request\GetWidgetKey as GetWidgetKeyRequest;
 use Comfino\Api\Request\GetWidgetTypes as GetWidgetTypesRequest;
 use Comfino\Api\Request\IsShopAccountActive as IsShopAccountActiveRequest;
@@ -34,6 +35,7 @@ use Comfino\Api\Response\GetPaywall as GetPaywallResponse;
 use Comfino\Api\Response\GetPaywallItemDetails as GetPaywallItemDetailsResponse;
 use Comfino\Api\Response\GetCreditors as GetCreditorsResponse;
 use Comfino\Api\Response\GetProductTypes as GetProductTypesResponse;
+use Comfino\Api\Response\GetUserSettings as GetUserSettingsResponse;
 use Comfino\Api\Response\GetWidgetKey as GetWidgetKeyResponse;
 use Comfino\Api\Response\GetWidgetTypes as GetWidgetTypesResponse;
 use Comfino\Api\Response\IsShopAccountActive as IsShopAccountActiveResponse;
@@ -333,6 +335,24 @@ class Client
     }
 
     /**
+     * Returns the complete shop user settings (feature flags with their per-flag attributes) for an authorized shop
+     * account.
+     *
+     * @throws RequestValidationError
+     * @throws ResponseValidationError
+     * @throws AuthorizationError
+     * @throws AccessDenied
+     * @throws ServiceUnavailable
+     * @throws ClientExceptionInterface
+     */
+    public function getUserSettings(): GetUserSettingsResponse
+    {
+        $this->request = (new GetUserSettingsRequest())->setSerializer($this->serializer);
+
+        return new GetUserSettingsResponse($this->request, $this->sendRequest($this->request), $this->serializer);
+    }
+
+    /**
      * Returns a list of financial products according to the specified criteria and calculations result based on passed cart contents.
      *
      * @param LoanQueryCriteria $queryCriteria
@@ -481,7 +501,11 @@ class Client
     }
 
     /**
-     * Returns a list of available financial product types associated with an authorized shop account.
+     * Returns a list of available financial product types associated with an authorized shop account, together
+     * with their internal and public display names.
+     *
+     * Always calls the v2 endpoint, which returns each product type mapped to a [internalName, publicName] pair
+     * (see {@see GetProductTypesResponse::$productTypesWithNames} and {@see GetProductTypesResponse::$productTypesWithPublicNames}).
      *
      * @throws RequestValidationError
      * @throws ResponseValidationError
@@ -494,7 +518,7 @@ class Client
     {
         $this->request = (new GetProductTypesRequest($listType))->setSerializer($this->serializer);
 
-        return new GetProductTypesResponse($this->request, $this->sendRequest($this->request), $this->serializer);
+        return new GetProductTypesResponse($this->request, $this->sendRequest($this->request, 2), $this->serializer);
     }
 
     /**

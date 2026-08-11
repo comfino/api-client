@@ -486,18 +486,59 @@ trait ClientTestTrait
             'COMPANY_BNPL' => 'Odroczone płatności dla firm',
             'LEASING' => 'Leasing',
         ];
+        $productTypesWithPublicNames = [
+            'INSTALLMENTS_ZERO_PERCENT' => 'Raty 0%',
+            'PAY_LATER' => 'Kup teraz i zapłać za 30 dni',
+            'CONVENIENT_INSTALLMENTS' => 'Niskie raty',
+            'COMPANY_BNPL' => 'Odroczone płatności dla firm',
+            'LEASING' => 'Leasing',
+        ];
+
+        $responseData = [];
+
+        foreach ($productTypesWithNames as $productType => $internalName) {
+            $responseData[$productType] = [$internalName, $productTypesWithPublicNames[$productType]];
+        }
+
         $listType = new ProductTypesListTypeEnum(ProductTypesListTypeEnum::LIST_TYPE_PAYWALL);
 
-        $apiClient = $this->initApiClient('/v1/product-types', 'GET', ['listType' => (string) $listType], null, $productTypesWithNames, 'API-KEY');
+        $apiClient = $this->initApiClient('/v2/product-types', 'GET', ['listType' => (string) $listType], null, $responseData, 'API-KEY');
 
         $response = $apiClient->getProductTypes($listType);
 
         $this->assertEquals($productTypes, $response->productTypes);
         $this->assertEquals($productTypesWithNames, $response->productTypesWithNames);
+        $this->assertEquals($productTypesWithPublicNames, $response->productTypesWithPublicNames);
 
         $this->expectException(AuthorizationError::class);
 
-        $this->initApiClient('/v1/product-types', 'GET', ['listType' => (string) $listType])->getProductTypes($listType);
+        $this->initApiClient('/v2/product-types', 'GET', ['listType' => (string) $listType])->getProductTypes($listType);
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testGetUserSettings(): void
+    {
+        $responseData = [
+            'flags' => [
+                ['name' => 'FLAG_ONE', 'attributes' => []],
+                ['name' => 'FLAG_TWO', 'attributes' => ['maxAmount' => 50000]],
+            ],
+        ];
+
+        $apiClient = $this->initApiClient('/v1/user/settings/flags', 'GET', null, null, $responseData, 'API-KEY');
+
+        $response = $apiClient->getUserSettings();
+
+        $this->assertSame(['FLAG_ONE' => [], 'FLAG_TWO' => ['maxAmount' => 50000]], $response->flags);
+        $this->assertTrue($response->hasFlag('FLAG_TWO'));
+        $this->assertFalse($response->hasFlag('FLAG_THREE'));
+        $this->assertSame(['maxAmount' => 50000], $response->getFlagAttributes('FLAG_TWO'));
+
+        $this->expectException(AuthorizationError::class);
+
+        $this->initApiClient('/v1/user/settings/flags', 'GET')->getUserSettings();
     }
 
     /**
