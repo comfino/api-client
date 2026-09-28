@@ -19,9 +19,9 @@ class RequestValidationError extends \LogicException implements HttpErrorExcepti
     private string $responseBody;
     /** @var array|string|bool|float|int|null  */
     private array|string|bool|null|float|int $deserializedResponseBody;
-    private ResponseInterface $response;
+    private ?ResponseInterface $response;
 
-    public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null, string $url = '', string $requestBody = '', string $responseBody = '', $deserializedResponseBody = null, ResponseInterface $response = null)
+    public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null, string $url = '', string $requestBody = '', string $responseBody = '', $deserializedResponseBody = null, ?ResponseInterface $response = null)
     {
         parent::__construct($message, $code, $previous);
 
@@ -72,7 +72,7 @@ class RequestValidationError extends \LogicException implements HttpErrorExcepti
         $this->deserializedResponseBody = $deserializedResponseBody;
     }
 
-    public function getResponse(): ResponseInterface
+    public function getResponse(): ?ResponseInterface
     {
         return $this->response;
     }

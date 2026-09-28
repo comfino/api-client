@@ -30,6 +30,16 @@ readonly abstract class Enum implements \JsonSerializable
 
     abstract public static function from(string $value, bool $strict = true): self;
 
+    /** Like from(), but returns null instead of throwing when the value does not exist. */
+    public static function tryFrom(string $value): ?static
+    {
+        try {
+            return static::from($value, true);
+        } catch (\InvalidArgumentException $e) {
+            return null;
+        }
+    }
+
     public function jsonSerialize(): string
     {
         return $this->value;

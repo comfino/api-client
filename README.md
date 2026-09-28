@@ -129,8 +129,17 @@ Exception hierarchy based on HTTP status codes:
 
 - **400**: `RequestValidationError` - Invalid request data.
 - **401**: `AuthorizationError` - Authentication failure.
-- **402-405**: `AccessDenied` - Permission issues.
-- **500+**: `ServiceUnavailable` - Server errors.
+- **403**: `Forbidden` (extends `AccessDenied`) - Permission issues.
+- **404**: `NotFound` (extends `AccessDenied`) - Entity not found. Carries `isIdempotentFailure()`, set by the
+  request that produced it (e.g. cancelling an already-cancelled order).
+- **405**: `MethodNotAllowed` (extends `AccessDenied`) - Method not allowed.
+- **409**: `Conflict` (extends `AccessDenied`) - Entity already exists. Also carries `isIdempotentFailure()`.
+- **429**: `TooManyRequests` (extends `RequestValidationError`) - Rate limited. Carries `getRetryAfterSeconds()`,
+  parsed from the `Retry-After` header when present.
+- **Other 4xx**: `RequestValidationError` - Invalid request data.
+- **2xx/3xx with a non-JSON body**: `NonJsonResponse` (extends `ResponseValidationError`) - the response could
+  not be decoded, e.g. an HTML error page returned by a misconfigured proxy or CDN.
+- **500+**: `ServiceUnavailable` - Server errors. A malformed or HTML body never downgrades this to a 4xx error.
 
 All exceptions implement `HttpErrorExceptionInterface` and preserve request/response context for debugging.
 

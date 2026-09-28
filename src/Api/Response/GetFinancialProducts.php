@@ -30,9 +30,15 @@ class GetFinancialProducts extends Base
             );
             $this->checkResponseType($financialProduct['loanParameters'], 'array', 'loanParameters');
 
+            if (($productType = LoanTypeEnum::tryFrom($financialProduct['type'])) === null) {
+                /* Unknown financial product type (e.g. added server-side ahead of this client) - skip it rather than failing
+                   the whole response, but never construct it non-strictly: an unknown type must not reach the paywall. */
+                continue;
+            }
+
             $financialProducts[] = new FinancialProduct(
                 $financialProduct['name'],
-                LoanTypeEnum::from($financialProduct['type']),
+                $productType,
                 $financialProduct['creditorName'],
                 $financialProduct['description'] ?? '',
                 $financialProduct['icon'],

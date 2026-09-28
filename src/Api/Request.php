@@ -199,4 +199,13 @@ abstract class Request
      * @return array|null
      */
     abstract protected function prepareRequestBody(): ?array;
+
+    /**
+     * Tells whether a 404/409 response to this request means the operation was already applied rather than that it failed - e.g.
+     * cancelling an already-cancelled order. The decision belongs to the operation, not the status code alone.
+     */
+    public function isIdempotentFailure(int $statusCode): bool
+    {
+        return false;
+    }
 }

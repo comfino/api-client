@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Shop user settings and feature flags can now be fetched from the API (not previously logged here).
+- Financial product listings now include public-facing product names for the newer API version (not previously logged here).
+- Orders can now carry an optional customer-entered promotional code, separate from the shop-wide promotional flag.
+- Requests that are rate-limited by the server are now reported with their own, more specific error, including the suggested wait time when the server provides one.
+- Server errors returned with an unreadable body (for example an HTML error page instead of the expected data) are now reported as a service-availability error instead of a generic validation error, so retry logic treats them correctly.
+- A successful-looking response with a body that cannot be understood (for example an HTML page returned instead of the expected data) is now reported with its own, more specific error.
+- Cancelling an order that was already cancelled, or that no longer exists, can now be recognised as "already done" rather than as a failure.
+- An unrecognised financial product type in a server response is now skipped instead of causing the whole response to fail.
+
+### Changed
+- Sensitive data masking in logs and error reports no longer treats ordinary fields such as shipping or description as if they contained an IP address; it also gained the ability to mask personal data inside free-text messages (not just structured data) and to keep long diagnostic text readable while masking anything sensitive in it.
+- The way an order object is constructed gained one more, optional argument for the promotional code described above; this widens an interface that shop platforms are not expected to implement directly, so it is listed here rather than under Added.
+
+### Fixed
+- A request built with no server response attached no longer risks a fatal type error when that response is inspected later.
+
 ## [1.2.0] - 2026-05-25
 
 > **This is the final release of `comfino/api-client`.** The library is now End of Life (EOL) and the repository has been archived. Migrate to [`comfino/php-api-client`](https://packagist.org/packages/comfino/php-api-client).

@@ -16,6 +16,8 @@ class AccessDenied extends \RuntimeException implements HttpErrorExceptionInterf
     private string $requestBody;
     /** @var string */
     private string $responseBody;
+    /** @var bool */
+    private bool $idempotentFailure = false;
 
     public function __construct(string $message = '', int $code = 0, ?\Throwable $previous = null, string $url = '', string $requestBody = '', string $responseBody = '')
     {
@@ -59,5 +61,22 @@ class AccessDenied extends \RuntimeException implements HttpErrorExceptionInterf
     public function getStatusCode(): int
     {
         return 403;
+    }
+
+    /**
+     * True when the failing status code (404/409) means the underlying operation was already applied - e.g. an
+     * order that was already cancelled - rather than a genuine failure. Set by the request that produced this
+     * exception (see Request::isIdempotentFailure()).
+     */
+    public function isIdempotentFailure(): bool
+    {
+        return $this->idempotentFailure;
+    }
+
+    public function setIdempotentFailure(bool $idempotentFailure): static
+    {
+        $this->idempotentFailure = $idempotentFailure;
+
+        return $this;
     }
 }

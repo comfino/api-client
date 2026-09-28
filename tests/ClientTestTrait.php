@@ -15,8 +15,13 @@ use Comfino\Api\Dto\Payment\LoanQueryCriteria;
 use Comfino\Api\Dto\Payment\LoanTypeEnum;
 use Comfino\Api\Exception\AccessDenied;
 use Comfino\Api\Exception\AuthorizationError;
+use Comfino\Api\Exception\Conflict;
+use Comfino\Api\Exception\Forbidden;
+use Comfino\Api\Exception\NonJsonResponse;
+use Comfino\Api\Exception\NotFound;
 use Comfino\Api\Exception\ResponseValidationError;
 use Comfino\Api\Exception\ServiceUnavailable;
+use Comfino\Api\Exception\TooManyRequests;
 use Comfino\Api\Request;
 use Comfino\Api\Serializer\Json;
 use Comfino\FinancialProduct\ProductTypesListTypeEnum;
@@ -1591,6 +1596,363 @@ trait ClientTestTrait
         );
 
         $apiClient->getFinancialProducts($queryCriteria);
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testTooManyRequestsErrorWithRetryAfterSeconds(): void
+    {
+        $factory = new Psr17Factory();
+        $client = new \Http\Mock\Client();
+
+        $client->on(
+            new RequestMatcher('/v1/financial-products', $this->productionApiHost, 'GET', 'https'),
+            fn () => $factory->createResponse(429)
+                ->withHeader('Content-Type', 'application/json')
+                ->withHeader('Retry-After', '30')
+                ->withBody($factory->createStream(json_encode(['message' => 'Too many requests'])))
+        );
+
+        $apiClient = new Client($factory, $factory, $client, 'API-KEY');
+
+        try {
+            $apiClient->getFinancialProducts(new LoanQueryCriteria(100000));
+            $this->fail('Expected TooManyRequests to be thrown.');
+        } catch (TooManyRequests $e) {
+            $this->assertSame(429, $e->getStatusCode());
+            $this->assertSame(30, $e->getRetryAfterSeconds());
+        }
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testTooManyRequestsErrorIgnoresHttpDateRetryAfter(): void
+    {
+        $factory = new Psr17Factory();
+        $client = new \Http\Mock\Client();
+
+        $client->on(
+            new RequestMatcher('/v1/financial-products', $this->productionApiHost, 'GET', 'https'),
+            fn () => $factory->createResponse(429)
+                ->withHeader('Content-Type', 'application/json')
+                ->withHeader('Retry-After', 'Wed, 21 Oct 2026 07:28:00 GMT')
+                ->withBody($factory->createStream(json_encode(['message' => 'Too many requests'])))
+        );
+
+        $apiClient = new Client($factory, $factory, $client, 'API-KEY');
+
+        try {
+            $apiClient->getFinancialProducts(new LoanQueryCriteria(100000));
+            $this->fail('Expected TooManyRequests to be thrown.');
+        } catch (TooManyRequests $e) {
+            $this->assertNull($e->getRetryAfterSeconds());
+        }
+    }
+
+    /**
+     * Regression test for a 5xx response with an HTML body sent under a misleading `application/json`
+     * Content-Type: it must still classify as ServiceUnavailable, not as a client-side validation error.
+     *
+     * @throws ClientExceptionInterface
+     */
+    public function testServiceUnavailableOnHtmlBodySentAsJson(): void
+    {
+        $factory = new Psr17Factory();
+        $client = new \Http\Mock\Client();
+
+        $client->on(
+            new RequestMatcher('/v1/financial-products', $this->productionApiHost, 'GET', 'https'),
+            fn () => $factory->createResponse(502)
+                ->withHeader('Content-Type', 'application/json')
+                ->withBody($factory->createStream('<html><body>Bad Gateway</body></html>'))
+        );
+
+        $apiClient = new Client($factory, $factory, $client, 'API-KEY');
+
+        $this->expectException(ServiceUnavailable::class);
+        $this->expectExceptionCode(502);
+
+        $apiClient->getFinancialProducts(new LoanQueryCriteria(100000));
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testServiceUnavailableOnHtmlBodyWithHtmlContentType(): void
+    {
+        $factory = new Psr17Factory();
+        $client = new \Http\Mock\Client();
+
+        $client->on(
+            new RequestMatcher('/v1/financial-products', $this->productionApiHost, 'GET', 'https'),
+            fn () => $factory->createResponse(502)
+                ->withHeader('Content-Type', 'text/html')
+                ->withBody($factory->createStream('<html><body>Bad Gateway</body></html>'))
+        );
+
+        $apiClient = new Client($factory, $factory, $client, 'API-KEY');
+
+        $this->expectException(ServiceUnavailable::class);
+
+        $apiClient->getFinancialProducts(new LoanQueryCriteria(100000));
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testNonJsonResponseOnSuccessfulHtmlBody(): void
+    {
+        $factory = new Psr17Factory();
+        $client = new \Http\Mock\Client();
+
+        $client->on(
+            new RequestMatcher('/v1/financial-products', $this->productionApiHost, 'GET', 'https'),
+            fn () => $factory->createResponse(200)
+                ->withHeader('Content-Type', 'text/html')
+                ->withBody($factory->createStream('<!DOCTYPE html><html><body>Oops</body></html>'))
+        );
+
+        $apiClient = new Client($factory, $factory, $client, 'API-KEY');
+
+        try {
+            $apiClient->getFinancialProducts(new LoanQueryCriteria(100000));
+            $this->fail('Expected NonJsonResponse to be thrown.');
+        } catch (NonJsonResponse $e) {
+            $this->assertSame(200, $e->getStatusCode());
+            $this->assertTrue($e->looksLikeHtml());
+            $this->assertSame('text/html', $e->getContentType());
+        }
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testCancelOrderIdempotentFailureOn404(): void
+    {
+        $orderId = 'ORDER-ID';
+
+        $apiClient = $this->initApiClient(
+            sprintf('/v1/orders/%s/cancel', $orderId),
+            'PUT',
+            null,
+            null,
+            ['message' => 'Not Found'],
+            'API-KEY',
+            false,
+            404
+        );
+
+        try {
+            $apiClient->cancelOrder($orderId);
+            $this->fail('Expected NotFound to be thrown.');
+        } catch (NotFound $e) {
+            $this->assertTrue($e->isIdempotentFailure());
+        }
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testCancelOrderIdempotentFailureOn409(): void
+    {
+        $orderId = 'ORDER-ID';
+
+        $apiClient = $this->initApiClient(
+            sprintf('/v1/orders/%s/cancel', $orderId),
+            'PUT',
+            null,
+            null,
+            ['message' => 'Conflict'],
+            'API-KEY',
+            false,
+            409
+        );
+
+        try {
+            $apiClient->cancelOrder($orderId);
+            $this->fail('Expected Conflict to be thrown.');
+        } catch (Conflict $e) {
+            $this->assertTrue($e->isIdempotentFailure());
+        }
+    }
+
+    /**
+     * A 404 on an operation other than cancelOrder must never be flagged as an idempotent failure.
+     *
+     * @throws ClientExceptionInterface
+     */
+    public function testGetOrderNotFoundIsNotIdempotent(): void
+    {
+        $orderId = 'ORDER-ID';
+
+        $apiClient = $this->initApiClient(
+            sprintf('/v1/orders/%s', $orderId),
+            'GET',
+            null,
+            null,
+            ['message' => 'Not Found'],
+            'API-KEY',
+            false,
+            404
+        );
+
+        try {
+            $apiClient->getOrder($orderId);
+            $this->fail('Expected NotFound to be thrown.');
+        } catch (NotFound $e) {
+            $this->assertFalse($e->isIdempotentFailure());
+        }
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testForbiddenIsNeverIdempotent(): void
+    {
+        $queryCriteria = new LoanQueryCriteria(100000);
+
+        $apiClient = $this->initApiClient(
+            '/v1/financial-products',
+            'GET',
+            ['loanAmount' => $queryCriteria->loanAmount],
+            null,
+            ['message' => 'Forbidden'],
+            'API-KEY',
+            false,
+            403
+        );
+
+        try {
+            $apiClient->getFinancialProducts($queryCriteria);
+            $this->fail('Expected Forbidden to be thrown.');
+        } catch (Forbidden $e) {
+            $this->assertFalse($e->isIdempotentFailure());
+        }
+    }
+
+    public function testLoanTypeEnumTryFromReturnsNullForUnknownValue(): void
+    {
+        $this->assertNull(LoanTypeEnum::tryFrom('NOPE'));
+        $this->assertInstanceOf(LoanTypeEnum::class, LoanTypeEnum::tryFrom(LoanTypeEnum::PAY_LATER));
+    }
+
+    /**
+     * @throws ClientExceptionInterface
+     */
+    public function testGetFinancialProductsSkipsUnknownProductType(): void
+    {
+        $queryCriteria = new LoanQueryCriteria(100000);
+
+        $loanParameters = [
+            ['instalmentAmount' => 1000, 'toPay' => 1000, 'loanTerm' => 1, 'rrso' => 0.15],
+        ];
+
+        $apiClient = $this->initApiClient(
+            '/v1/financial-products',
+            'GET',
+            ['loanAmount' => $queryCriteria->loanAmount],
+            null,
+            [
+                [
+                    'name' => 'Known product',
+                    'type' => 'PAY_LATER',
+                    'creditorName' => 'creditor',
+                    'icon' => 'icon',
+                    'instalmentAmount' => 1000,
+                    'toPay' => 1000,
+                    'loanTerm' => 1,
+                    'loanParameters' => $loanParameters,
+                ],
+                [
+                    'name' => 'Unknown product',
+                    'type' => 'SOME_FUTURE_TYPE',
+                    'creditorName' => 'creditor',
+                    'icon' => 'icon',
+                    'instalmentAmount' => 1000,
+                    'toPay' => 1000,
+                    'loanTerm' => 1,
+                    'loanParameters' => $loanParameters,
+                ],
+            ],
+            'API-KEY'
+        );
+
+        $response = $apiClient->getFinancialProducts($queryCriteria);
+
+        $this->assertCount(1, $response->financialProducts);
+        $this->assertSame('Known product', $response->financialProducts[0]->name);
+    }
+
+    public function testRequestValidationErrorWithNoResponseReturnsNull(): void
+    {
+        $exception = new \Comfino\Api\Exception\RequestValidationError('message', 400);
+
+        $this->assertNull($exception->getResponse());
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function testCreateOrderRequestBodyIncludesPromoCodeWhenSet(): void
+    {
+        $order = $this->buildMinimalOrder(promoCode: 'SUMMER2026');
+        $request = new \Comfino\Api\Request\CreateOrder($order, 'API-KEY');
+
+        $body = $this->getMethodResult($request, 'prepareRequestBody');
+
+        $this->assertArrayHasKey('promoCode', $body);
+        $this->assertSame('SUMMER2026', $body['promoCode']);
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function testCreateOrderRequestBodyOmitsPromoCodeWhenNull(): void
+    {
+        $order = $this->buildMinimalOrder();
+        $request = new \Comfino\Api\Request\CreateOrder($order, 'API-KEY');
+
+        $body = $this->getMethodResult($request, 'prepareRequestBody');
+
+        $this->assertArrayNotHasKey('promoCode', $body);
+    }
+
+    private function buildMinimalOrder(?string $promoCode = null): Order
+    {
+        return new Order(
+            'ORDER-ID',
+            'https://comfino-shop.test',
+            new LoanParameters(50000, 24, new LoanTypeEnum(LoanTypeEnum::CONVENIENT_INSTALLMENTS)),
+            new Cart(
+                [
+                    new Cart\CartItem(
+                        new Cart\Product('Test product', 100000, '123', 'Category1', '9002490100070', 'https://comfino.shop.pl/images/photo1.jpg'),
+                        1
+                    ),
+                ],
+                100000,
+                0
+            ),
+            new Shop\Order\Customer(
+                'John',
+                'Doe',
+                'mail@test-comfino.pl',
+                '333333333',
+                '127.0.0.1',
+                '3559197034',
+                null,
+                null,
+                null
+            ),
+            null,
+            null,
+            null,
+            null,
+            null,
+            $promoCode
+        );
     }
 
     /**

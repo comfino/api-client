@@ -47,4 +47,12 @@ interface OrderInterface
 
     /** @return \Comfino\Api\Dto\Payment\AllowedProductConfig[]|null */
     public function getAllowedProductsConfig(): ?array;
+
+    /**
+     * Promotional code entered by the customer at the paywall display step or later, distinct from the
+     * shop-wide `PROMO` flag surfaced on `GET /v1/user/settings/flags`.
+     *
+     * @return string|null
+     */
+    public function getPromoCode(): ?string;
 }

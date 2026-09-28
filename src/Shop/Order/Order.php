@@ -19,6 +19,7 @@ readonly class Order implements OrderInterface
      * @param string|null $accountNumber
      * @param string|null $transferTitle
      * @param AllowedProductConfig[]|null $allowedProductsConfig
+     * @param string|null $promoCode
      */
     public function __construct(
         private string $id,
@@ -30,7 +31,8 @@ readonly class Order implements OrderInterface
         private ?SellerInterface $seller = null,
         private ?string $accountNumber = null,
         private ?string $transferTitle = null,
-        private ?array $allowedProductsConfig = null
+        private ?array $allowedProductsConfig = null,
+        private ?string $promoCode = null
     ) { }
 
     /**
@@ -111,5 +113,13 @@ readonly class Order implements OrderInterface
     public function getAllowedProductsConfig(): ?array
     {
         return $this->allowedProductsConfig;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPromoCode(): ?string
+    {
+        return $this->promoCode !== null ? trim(html_entity_decode(strip_tags($this->promoCode))) : null;
     }
 }
