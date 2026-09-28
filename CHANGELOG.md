@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-28
+
+> **This is the final release of `comfino/api-client`.** The library is now End of Life (EOL) and the repository has been archived. Migrate to [`comfino/php-api-client`](https://packagist.org/packages/comfino/php-api-client).
+
 ### Added
 - Shop user settings and feature flags can now be fetched from the API (not previously logged here).
 - Financial product listings now include public-facing product names for the newer API version (not previously logged here).

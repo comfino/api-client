@@ -58,7 +58,7 @@ use Psr\Http\Message\StreamFactoryInterface;
  */
 class Client
 {
-    public const CLIENT_VERSION = '1.1.2';
+    public const CLIENT_VERSION = '1.3.0';
     public const PRODUCTION_HOST = 'https://api-ecommerce.comfino.pl';
     public const SANDBOX_HOST = 'https://api-ecommerce.craty.pl';
 
