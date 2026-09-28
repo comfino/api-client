@@ -37,6 +37,8 @@ final class SensitiveDataRedactor
         'house_number',
         'flatnumber',
         'flat_number',
+        'apartmentnumber',
+        'apartment_number',
         'buildingnumber',
         'building_number',
         'city',

@@ -89,6 +89,19 @@ class SensitiveDataRedactorTest extends TestCase
         $this->assertSame('***REDACTED***', $redacted['ipAddress']);
     }
 
+    public function testRedactStructureMasksApartmentNumber(): void
+    {
+        /* The wire field name is 'apartmentNumber' (Api\Dto\Order\Customer\Address, Api\Request\CreateOrder);
+           'flatNumber'/'flat_number' were already covered, but the actual key used elsewhere in this codebase was not. */
+        $redacted = SensitiveDataRedactor::redactStructure([
+            'apartmentNumber' => '12A',
+            'apartment_number' => '12A',
+        ]);
+
+        $this->assertSame('***REDACTED***', $redacted['apartmentNumber']);
+        $this->assertSame('***REDACTED***', $redacted['apartment_number']);
+    }
+
     public function testRedactPayloadOnHtmlBodyKeepsTagsAndMasksEmail(): void
     {
         $html = '<html><body>Error for user@example.com</body></html>';
