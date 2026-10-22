@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Shop user settings no longer fail to load when one feature flag comes back in an unexpected shape (not a list of attributes); every flag is now passed through as received instead of discarding all of them.
+- An order whose promotional code is blank after cleaning (empty, only spaces, or only markup) no longer sends an empty `promoCode` to the API, which rejected it with a validation error; the field is now omitted.
+
 ## [1.3.0] - 2026-09-28
 
 > **This is the final release of `comfino/api-client`.** The library is now End of Life (EOL) and the repository has been archived. Migrate to [`comfino/php-api-client`](https://packagist.org/packages/comfino/php-api-client).

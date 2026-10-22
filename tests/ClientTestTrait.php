@@ -23,6 +23,7 @@ use Comfino\Api\Exception\ResponseValidationError;
 use Comfino\Api\Exception\ServiceUnavailable;
 use Comfino\Api\Exception\TooManyRequests;
 use Comfino\Api\Request;
+use Comfino\Api\Request\CreateOrder;
 use Comfino\Api\Serializer\Json;
 use Comfino\FinancialProduct\ProductTypesListTypeEnum;
 use Comfino\Shop;
@@ -518,6 +519,23 @@ trait ClientTestTrait
         $this->expectException(AuthorizationError::class);
 
         $this->initApiClient('/v2/product-types', 'GET', ['listType' => (string) $listType])->getProductTypes($listType);
+    }
+
+    /**
+     * Flag values of any JSON type pass through untouched, so a changed flag shape never drops the other flags.
+     *
+     * @throws ClientExceptionInterface
+     */
+    public function testGetUserSettingsAcceptsFlagValuesOfAnyType(): void
+    {
+        $responseData = ['flags' => ['FLAG_ONE' => true, 'FLAG_TWO' => 'text', 'FLAG_THREE' => ['promo' => ['amount' => 5]]]];
+
+        $response = $this->initApiClient('/v1/user/settings/flags', 'GET', null, null, $responseData, 'API-KEY')->getUserSettings();
+
+        $this->assertSame($responseData['flags'], $response->flags);
+        $this->assertTrue($response->hasFlag('FLAG_ONE'));
+        $this->assertSame([], $response->getFlagAttributes('FLAG_ONE'));
+        $this->assertSame(['promo' => ['amount' => 5]], $response->getFlagAttributes('FLAG_THREE'));
     }
 
     /**
@@ -1898,7 +1916,7 @@ trait ClientTestTrait
     public function testCreateOrderRequestBodyIncludesPromoCodeWhenSet(): void
     {
         $order = $this->buildMinimalOrder(promoCode: 'SUMMER2026');
-        $request = new \Comfino\Api\Request\CreateOrder($order, 'API-KEY');
+        $request = new CreateOrder($order, 'API-KEY');
 
         $body = $this->getMethodResult($request, 'prepareRequestBody');
 
@@ -1912,11 +1930,28 @@ trait ClientTestTrait
     public function testCreateOrderRequestBodyOmitsPromoCodeWhenNull(): void
     {
         $order = $this->buildMinimalOrder();
-        $request = new \Comfino\Api\Request\CreateOrder($order, 'API-KEY');
+        $request = new CreateOrder($order, 'API-KEY');
 
         $body = $this->getMethodResult($request, 'prepareRequestBody');
 
         $this->assertArrayNotHasKey('promoCode', $body);
+    }
+
+    /**
+     * @dataProvider blankPromoCodeProvider
+     *
+     * @throws \ReflectionException
+     */
+    public function testCreateOrderRequestBodyOmitsBlankPromoCode(string $promoCode): void
+    {
+        $request = new CreateOrder($this->buildMinimalOrder($promoCode), 'API-KEY');
+
+        $this->assertArrayNotHasKey('promoCode', $this->getMethodResult($request, 'prepareRequestBody'));
+    }
+
+    public static function blankPromoCodeProvider(): array
+    {
+        return ['empty' => [''], 'whitespace' => ["  \t"], 'markup only' => ['<b></b>'], 'entity space' => ['&nbsp;']];
     }
 
     private function buildMinimalOrder(?string $promoCode = null): Order

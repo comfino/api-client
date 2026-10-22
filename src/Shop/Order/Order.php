@@ -120,6 +120,16 @@ readonly class Order implements OrderInterface
      */
     public function getPromoCode(): ?string
     {
-        return $this->promoCode !== null ? trim(html_entity_decode(strip_tags($this->promoCode))) : null;
+        if ($this->promoCode === null) {
+            return null;
+        }
+
+        $promoCode = html_entity_decode(strip_tags($this->promoCode));
+
+        // Unicode spaces (e.g. a decoded &nbsp;) are trimmed too; invalid UTF-8 falls back to a plain trim().
+        $promoCode = preg_replace('/^[\p{Z}\s]+|[\p{Z}\s]+$/u', '', $promoCode) ?? trim($promoCode);
+
+        // The API rejects an empty promoCode, so a value that is blank after cleaning must not be sent.
+        return $promoCode !== '' ? $promoCode : null;
     }
 }

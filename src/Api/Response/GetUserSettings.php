@@ -6,7 +6,7 @@ namespace Comfino\Api\Response;
 
 class GetUserSettings extends Base
 {
-    /** @var array<string, array<string, mixed>> Flag attributes keyed by flag name. */
+    /** @var array<string, mixed> Flag attributes keyed by flag name. */
     public readonly array $flags;
 
     /**
@@ -18,10 +18,8 @@ class GetUserSettings extends Base
         $this->checkResponseStructure($deserializedResponseBody, ['flags']);
         $this->checkResponseType($deserializedResponseBody['flags'], 'array', 'flags');
 
-        foreach ($deserializedResponseBody['flags'] as $flagName => $attributes) {
-            $this->checkResponseType($attributes, 'array', "flags.$flagName");
-        }
-
+        /* The structure of each flag belongs to the API and changes over time, so a flag value of any JSON type is
+           accepted here; rejecting an unexpected shape would drop every other flag along with it. */
         $this->flags = $deserializedResponseBody['flags'];
     }
 
@@ -35,6 +33,6 @@ class GetUserSettings extends Base
      */
     public function getFlagAttributes(string $flag): array
     {
-        return $this->flags[$flag] ?? [];
+        return is_array($this->flags[$flag] ?? null) ? $this->flags[$flag] : [];
     }
 }
