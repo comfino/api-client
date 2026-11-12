@@ -622,10 +622,10 @@ class Client
     /**
      * Returns the track ID shared across all API calls made by this client instance.
      *
-     * The ID is generated on the first API call and reused for every subsequent one, making it a stable
-     * correlation key for the entire PHP request lifecycle. Shop plugins should expose this value to the
-     * frontend so that browser-side errors logged by the Comfino widget carry the same ID and can be
-     * matched against backend errors in Sentry or other observability tools.
+     * The ID is a UUIDv7 in 32 lowercase hex characters (no hyphens), generated on the first API call and reused for
+     * every subsequent one, making it a stable correlation key for the entire PHP request lifecycle. Shop plugins should
+     * expose this value to the frontend so that browser-side errors logged by the Comfino widget carry the same ID and
+     * can be matched against backend errors in Sentry or other observability tools.
      *
      * @return string The track ID
      */
@@ -692,14 +692,16 @@ class Client
         return $this->customUserAgent ?? "Comfino API client {$this->getVersion()}";
     }
 
+    /**
+     * Generates a correlation ID: a UUIDv7 (48-bit Unix millisecond timestamp, version 7, variant 10, 74 random bits) as its 16 bytes in
+     * 32 lowercase hex characters without hyphens. Receivers read it as a time-ordered UUID.
+     */
     private function generateTrackId(): string
     {
-        $base = !empty($this->clientHostName) ? $this->clientHostName : gethostname();
+        $random = random_bytes(10);
+        $random[0] = chr((ord($random[0]) & 0x0f) | 0x70);
+        $random[2] = chr((ord($random[2]) & 0x3f) | 0x80);
 
-        if ($base === false) {
-            return 'trid-' . bin2hex(random_bytes(8));
-        }
-
-        return $base . '-' . microtime(true) . '-' . bin2hex(random_bytes(4));
+        return bin2hex(substr(pack('J', (int) floor(microtime(true) * 1000)), 2) . $random);
     }
 }

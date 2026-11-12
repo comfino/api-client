@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `OrderInterface::getDirectRedirect()` and an optional `directRedirect` argument of `Order` (last): tells the API that the order was placed in the plugin's direct redirect mode (no paywall iframe). `CreateOrder` sends `directRedirect` only when the value is not null.
 
+### Changed
+- The track ID (`Comfino-Track-Id`) is now a UUIDv7 as 32 lowercase hex characters without hyphens (e.g. `0192f3a8b4c47d2e9a1b3c4d5e6f7a8b`) instead of `<hostname>-<microtime>-<hex>`; the client hostname no longer enters the ID. Callers' own IDs are still accepted unchanged.
+
 ### Fixed
 - `SensitiveDataRedactor::redactText()` now also masks credentials: `Authorization`, `Proxy-Authorization`, `Cookie` and `Set-Cookie` header values (to the end of the line), bare `Bearer` tokens, JWTs and secret query parameters (`?auth=`, `?token=`, `?loggingToken=`, ...). Before, `Authorization: Bearer <token>` was left readable in error messages and logs
 - `SensitiveDataRedactor` no longer redacts unrelated keys: `city` and `nip` matched inside other words (`capacity`, `electricity`, `snippet`). They now match whole words of a key, so `billingCity` and `company_nip` are still redacted

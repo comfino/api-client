@@ -1311,6 +1311,39 @@ trait ClientTestTrait
 
     /**
      * @throws Exception
+     */
+    public function testGeneratedTrackIdIsUuidV7InHexWireForm(): void
+    {
+        $before = (int) floor(microtime(true) * 1000);
+        $ids = [];
+
+        for ($i = 0; $i < 1000; $i++) {
+            $apiClient = new Client(
+                $this->createMock(RequestFactoryInterface::class),
+                $this->createMock(StreamFactoryInterface::class),
+                $this->createMock(ClientInterface::class),
+                'TEST-API-KEY'
+            );
+            $apiClient->setClientHostName('my-shop.example.com');
+            $ids[] = $apiClient->getTrackId();
+        }
+
+        $after = (int) floor(microtime(true) * 1000);
+
+        foreach ($ids as $id) {
+            $this->assertSame(1, preg_match('/^[0-9a-f]{32}$/', $id));
+            $this->assertSame('7', $id[12]);
+            $this->assertContains($id[16], ['8', '9', 'a', 'b']);
+            $this->assertSame(1, preg_match($this->getConstantFromClass(Client::class, 'TRACK_ID_PATTERN'), $id));
+            $this->assertGreaterThanOrEqual($before, hexdec(substr($id, 0, 12)));
+            $this->assertLessThanOrEqual($after, hexdec(substr($id, 0, 12)));
+        }
+
+        $this->assertCount(1000, array_unique($ids));
+    }
+
+    /**
+     * @throws Exception
      * @throws \ReflectionException
      */
     public function testSetTrackIdReusesInjectedValue(): void
