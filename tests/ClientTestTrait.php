@@ -1954,7 +1954,37 @@ trait ClientTestTrait
         return ['empty' => [''], 'whitespace' => ["  \t"], 'markup only' => ['<b></b>'], 'entity space' => ['&nbsp;']];
     }
 
-    private function buildMinimalOrder(?string $promoCode = null): Order
+    /**
+     * @dataProvider directRedirectProvider
+     *
+     * @throws \ReflectionException
+     */
+    public function testCreateOrderRequestBodyIncludesDirectRedirectWhenSet(bool $directRedirect): void
+    {
+        $request = new CreateOrder($this->buildMinimalOrder(directRedirect: $directRedirect), 'API-KEY');
+
+        $body = $this->getMethodResult($request, 'prepareRequestBody');
+
+        $this->assertArrayHasKey('directRedirect', $body);
+        $this->assertSame($directRedirect, $body['directRedirect']);
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function testCreateOrderRequestBodyOmitsDirectRedirectWhenNull(): void
+    {
+        $request = new CreateOrder($this->buildMinimalOrder(), 'API-KEY');
+
+        $this->assertArrayNotHasKey('directRedirect', $this->getMethodResult($request, 'prepareRequestBody'));
+    }
+
+    public static function directRedirectProvider(): array
+    {
+        return ['true' => [true], 'false' => [false]];
+    }
+
+    private function buildMinimalOrder(?string $promoCode = null, ?bool $directRedirect = null): Order
     {
         return new Order(
             'ORDER-ID',
@@ -1986,7 +2016,8 @@ trait ClientTestTrait
             null,
             null,
             null,
-            $promoCode
+            $promoCode,
+            $directRedirect
         );
     }
 

@@ -55,4 +55,12 @@ interface OrderInterface
      * @return string|null
      */
     public function getPromoCode(): ?string;
+
+    /**
+     * Whether the order was placed in the plugin's direct redirect mode (without the paywall iframe).
+     * Null means the plugin does not report the mode.
+     *
+     * @return bool|null
+     */
+    public function getDirectRedirect(): ?bool;
 }

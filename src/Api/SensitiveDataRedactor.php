@@ -41,7 +41,6 @@ final class SensitiveDataRedactor
         'apartment_number',
         'buildingnumber',
         'building_number',
-        'city',
         'ipaddress',
         'ip_address',
         'apikey',
@@ -52,9 +51,20 @@ final class SensitiveDataRedactor
         'token',
         'credential',
         'pesel',
-        'nip',
         'regon',
     ];
+
+    /**
+     * Short sensitive words matched as whole words of a key (split on non-alphanumerics and camelCase humps), not as
+     * substrings: `city` must not hit `capacity` or `electricity`, nor `nip` hit `snippet`.
+     */
+    private const SENSITIVE_KEY_WORDS = ['nip', 'city'];
+
+    /** Header lines whose value runs to the end of the line and may hold spaces: `Authorization: Bearer <token>`. */
+    private const CREDENTIAL_HEADER_PATTERN = '/\b(authorization|proxy-authorization|cookie|set-cookie)(\s*[:=]\s*)[^\r\n]+/i';
+    private const BEARER_PATTERN = '/\bBearer\s+[A-Za-z0-9._~+\/=-]+/i';
+    private const JWT_PATTERN = '/\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*/';
+    private const SECRET_QUERY_PARAMETER_PATTERN = '/([?&](?:auth|token|access_token|api[_-]?key|logging[_-]?token|signature)=)[^&\s"\']+/i';
 
     /** Matches the key fragment 'ip' only as a whole token, not as a substring of 'shipping', 'description' etc. */
     private const IP_KEY_PATTERN = '/(^|[_\-.])ip($|[_\-.]|address)/';
@@ -69,7 +79,9 @@ final class SensitiveDataRedactor
 
     /**
      * Masks e-mail addresses, IPv4/IPv6 addresses and phone-like digit runs (9+ digits, optional +, spaces or dashes) inside
-     * free text such as exception messages. Key-based rules (redactStructure()) cannot apply to text that has no keys.
+     * free text such as exception messages, plus credentials: `Authorization` / `Cookie` header values (to the end of the
+     * line), bearer tokens, JWTs and secret query parameters (`?auth=`, `?token=`, ...). Key-based rules (redactStructure())
+     * cannot apply to text that has no keys.
      */
     public static function redactText(string $text): string
     {
@@ -77,7 +89,12 @@ final class SensitiveDataRedactor
             return '';
         }
 
-        $masked = preg_replace(self::EMAIL_PATTERN, self::REDACTED, $text);
+        // Credentials first, so the digit and address rules below never see (and half-mask) a token's content.
+        $masked = preg_replace(self::CREDENTIAL_HEADER_PATTERN, '$1$2' . self::REDACTED, $text);
+        $masked = preg_replace(self::BEARER_PATTERN, 'Bearer ' . self::REDACTED, $masked ?? $text);
+        $masked = preg_replace(self::JWT_PATTERN, self::REDACTED, $masked ?? $text);
+        $masked = preg_replace(self::SECRET_QUERY_PARAMETER_PATTERN, '$1' . self::REDACTED, $masked ?? $text);
+        $masked = preg_replace(self::EMAIL_PATTERN, self::REDACTED, $masked ?? $text);
         $masked = preg_replace(self::IPV6_PATTERN, self::REDACTED, $masked);
         $masked = preg_replace(self::IPV4_PATTERN, self::REDACTED, $masked);
         $masked = preg_replace(self::PHONE_PATTERN, self::REDACTED, $masked);
@@ -207,6 +224,14 @@ final class SensitiveDataRedactor
 
         foreach (self::SENSITIVE_KEY_FRAGMENTS as $fragment) {
             if (str_contains($normalized, $fragment)) {
+                return true;
+            }
+        }
+
+        $words = preg_split('/[^A-Za-z0-9]+|(?<=[a-z0-9])(?=[A-Z])/', $key, -1, PREG_SPLIT_NO_EMPTY);
+
+        foreach ($words === false ? [] : $words as $word) {
+            if (in_array(strtolower($word), self::SENSITIVE_KEY_WORDS, true)) {
                 return true;
             }
         }

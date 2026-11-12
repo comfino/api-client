@@ -20,6 +20,7 @@ readonly class Order implements OrderInterface
      * @param string|null $transferTitle
      * @param AllowedProductConfig[]|null $allowedProductsConfig
      * @param string|null $promoCode
+     * @param bool|null $directRedirect
      */
     public function __construct(
         private string $id,
@@ -32,7 +33,8 @@ readonly class Order implements OrderInterface
         private ?string $accountNumber = null,
         private ?string $transferTitle = null,
         private ?array $allowedProductsConfig = null,
-        private ?string $promoCode = null
+        private ?string $promoCode = null,
+        private ?bool $directRedirect = null
     ) { }
 
     /**
@@ -131,5 +133,13 @@ readonly class Order implements OrderInterface
 
         // The API rejects an empty promoCode, so a value that is blank after cleaning must not be sent.
         return $promoCode !== '' ? $promoCode : null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDirectRedirect(): ?bool
+    {
+        return $this->directRedirect;
     }
 }

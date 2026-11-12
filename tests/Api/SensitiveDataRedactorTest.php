@@ -136,4 +136,62 @@ class SensitiveDataRedactorTest extends TestCase
     {
         $this->assertSame('short', SensitiveDataRedactor::truncate('short', 100));
     }
+
+    public function testRedactTextMasksAuthorizationHeaderValueToTheEndOfTheLine(): void
+    {
+        $result = SensitiveDataRedactor::redactText("POST /x HTTP/1.1\nAuthorization: Bearer abc.def-ghi_123\nAccept: */*");
+
+        $this->assertStringNotContainsString('abc.def-ghi_123', $result);
+        $this->assertStringContainsString('Authorization: ***REDACTED***', $result);
+        $this->assertStringContainsString('Accept: */*', $result);
+    }
+
+    public function testRedactTextMasksCookieHeaders(): void
+    {
+        $result = SensitiveDataRedactor::redactText('Cookie: sid=abc123; theme=dark');
+
+        $this->assertStringNotContainsString('abc123', $result);
+        $this->assertStringNotContainsString('theme=dark', $result);
+    }
+
+    public function testRedactTextMasksABareBearerTokenAndAJwt(): void
+    {
+        $this->assertStringNotContainsString('xyz789token', SensitiveDataRedactor::redactText('failed, sent Bearer xyz789token'));
+        $this->assertStringNotContainsString(
+            'eyJhbGciOi.eyJzdWIiOi.c2ln',
+            SensitiveDataRedactor::redactText('token was eyJhbGciOi.eyJzdWIiOi.c2ln here')
+        );
+    }
+
+    public function testRedactTextMasksSecretQueryParametersButKeepsOthers(): void
+    {
+        $result = SensitiveDataRedactor::redactText('GET /v3/paywall?auth=SECRETVALUE&loanAmount=1000&loggingToken=LOGTOKEN');
+
+        $this->assertStringNotContainsString('SECRETVALUE', $result);
+        $this->assertStringNotContainsString('LOGTOKEN', $result);
+        $this->assertStringContainsString('loanAmount=1000', $result);
+    }
+
+    public function testShortSensitiveWordsMatchWholeWordsOfAKeyOnly(): void
+    {
+        $result = SensitiveDataRedactor::redactStructure([
+            'capacity' => 'keep',
+            'electricity' => 'keep',
+            'snippet' => 'keep',
+            'city' => 'Warszawa',
+            'billing_city' => 'Warszawa',
+            'billingCity' => 'Warszawa',
+            'nip' => '1234567890',
+            'company_nip' => '1234567890',
+            'companyNip' => '1234567890',
+        ]);
+
+        foreach (['capacity', 'electricity', 'snippet'] as $key) {
+            $this->assertSame('keep', $result[$key], $key);
+        }
+
+        foreach (['city', 'billing_city', 'billingCity', 'nip', 'company_nip', 'companyNip'] as $key) {
+            $this->assertSame('***REDACTED***', $result[$key], $key);
+        }
+    }
 }
