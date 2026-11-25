@@ -70,10 +70,20 @@ final class SensitiveDataRedactor
     private const IP_KEY_PATTERN = '/(^|[_\-.])ip($|[_\-.]|address)/';
 
     private const EMAIL_PATTERN = '/[a-z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+/i';
-    private const IPV6_PATTERN = '/\b(?:[0-9a-f]{1,4}:){2,7}[0-9a-f]{1,4}\b/i';
+    /**
+     * IPv6 candidates: colon-separated hex groups (empty groups allowed for "::"), optionally ending in an embedded IPv4
+     * address. A candidate is masked only when filter_var() accepts it as IPv6, so a time ("08:14:03", "12:30:00") or a
+     * MAC address ("00:1a:2b:3c:4d:5e") stays readable, while compressed forms ("2001:db8::1", "::1") are masked.
+     */
+    private const IPV6_CANDIDATE_PATTERN = '/(?<![0-9a-f:])(?:[0-9a-f]{0,4}:){2,7}(?:(?:\d{1,3}\.){3}\d{1,3}|[0-9a-f]{0,4})(?![0-9a-f:])/i';
     private const IPV4_PATTERN = '/\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b/';
-    /** 9+ digit run, optionally starting with '+' and with digits separated by spaces or dashes (phone numbers). */
-    private const PHONE_PATTERN = '/\+?\d(?:[\s-]?\d){8,}/';
+    /**
+     * A date with an optional time, in the "date" group, ahead of the phone alternative: 9+ digits, optionally starting
+     * with '+' and separated by spaces or dashes. At a position where both could match, the date wins and is kept, so
+     * "2026-11-21 08:14:03" is not read as the 10-digit phone "2026-11-21 08". Month, day and time ranges are checked by
+     * the pattern, so a phone written as "12-34-5678 90" is not a date and is still masked.
+     */
+    private const PHONE_PATTERN = '/(?<date>(?<![\w.])(?:\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])|(?:0[1-9]|[12]\d|3[01])[-.](?:0[1-9]|1[0-2])[-.]\d{4})(?:[T ](?:[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)?(?!\w))|\+?\d(?:[\s-]?\d){8,}/';
 
     private const REDACTED = '***REDACTED***';
 
@@ -95,9 +105,21 @@ final class SensitiveDataRedactor
         $masked = preg_replace(self::JWT_PATTERN, self::REDACTED, $masked ?? $text);
         $masked = preg_replace(self::SECRET_QUERY_PARAMETER_PATTERN, '$1' . self::REDACTED, $masked ?? $text);
         $masked = preg_replace(self::EMAIL_PATTERN, self::REDACTED, $masked ?? $text);
-        $masked = preg_replace(self::IPV6_PATTERN, self::REDACTED, $masked);
-        $masked = preg_replace(self::IPV4_PATTERN, self::REDACTED, $masked);
-        $masked = preg_replace(self::PHONE_PATTERN, self::REDACTED, $masked);
+        $masked = preg_replace_callback(
+            self::IPV6_CANDIDATE_PATTERN,
+            static function (array $match): string {
+                return filter_var($match[0], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false ? self::REDACTED : $match[0];
+            },
+            $masked ?? $text
+        );
+        $masked = preg_replace(self::IPV4_PATTERN, self::REDACTED, $masked ?? $text);
+        $masked = preg_replace_callback(
+            self::PHONE_PATTERN,
+            static function (array $match): string {
+                return isset($match['date']) && $match['date'] !== '' ? $match[0] : self::REDACTED;
+            },
+            $masked ?? $text
+        );
 
         return $masked ?? $text;
     }

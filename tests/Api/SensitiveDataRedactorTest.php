@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Comfino\Tests\Api;
 
 use Comfino\Api\SensitiveDataRedactor;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class SensitiveDataRedactorTest extends TestCase
@@ -193,5 +194,75 @@ class SensitiveDataRedactorTest extends TestCase
         foreach (['city', 'billing_city', 'billingCity', 'nip', 'company_nip', 'companyNip'] as $key) {
             $this->assertSame('***REDACTED***', $result[$key], $key);
         }
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function textKeptUnchangedProvider(): array
+    {
+        return [
+            'report timestamp, ISO date + time' => ['Orders submitted: 3 since 2026-11-21 08:14:03 UTC'],
+            'Polish date + time' => ['21-11-2026 08:14:03'],
+            'Polish dotted date + time' => ['21.11.2026 08:14'],
+            'ISO 8601 with milliseconds' => ['2026-11-21T08:14:03.123Z'],
+            'ISO 8601 with offset' => ['2026-11-21T08:14:03+01:00'],
+            'time alone' => ['12:30:00'],
+            'time in a sentence' => ['started at 08:14:03, done'],
+            'MAC address' => ['interface 00:1a:2b:3c:4d:5e'],
+            'two colons, not an address' => ['a:b:c'],
+        ];
+    }
+
+    #[DataProvider('textKeptUnchangedProvider')]
+    public function testRedactTextKeepsDatesTimesAndNonAddresses(string $text): void
+    {
+        $this->assertSame($text, SensitiveDataRedactor::redactText($text));
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function ipv6Provider(): array
+    {
+        return [
+            'compressed' => ['host 2001:db8::1 down', 'host ***REDACTED*** down'],
+            'loopback' => ['bound to ::1.', 'bound to ***REDACTED***.'],
+            'link-local' => ['fe80::1ff:fe23:4567:890a', '***REDACTED***'],
+            'full eight groups' => ['2001:0db8:85a3:0000:0000:8a2e:0370:7334', '***REDACTED***'],
+            'IPv4-mapped' => ['from ::ffff:192.0.2.1 x', 'from ***REDACTED*** x'],
+        ];
+    }
+
+    #[DataProvider('ipv6Provider')]
+    public function testRedactTextMasksWholeIpv6Addresses(string $text, string $expected): void
+    {
+        $this->assertSame($expected, SensitiveDataRedactor::redactText($text));
+    }
+
+    public function testRedactTextKeepsTheTimestampAndMasksPersonalDataInOneMessage(): void
+    {
+        $this->assertSame(
+            'since 2026-11-21 08:14:03 UTC (***REDACTED***, ***REDACTED***)',
+            SensitiveDataRedactor::redactText('since 2026-11-21 08:14:03 UTC (jan.kowalski@example.com, +48 600 700 800)')
+        );
+    }
+
+    public function testRedactTextStillMasksAPhoneNumberAfterADate(): void
+    {
+        $this->assertSame('2026-11-21 ***REDACTED***', SensitiveDataRedactor::redactText('2026-11-21 600700800'));
+    }
+
+    public function testRedactTextMasksAPhoneShapedLikeAnInvalidDate(): void
+    {
+        $this->assertSame('call ***REDACTED*** now', SensitiveDataRedactor::redactText('call 12-34-5678 90 now'));
+    }
+
+    public function testRedactTextIsIdempotentOnTimestamps(): void
+    {
+        $text = 'since 2026-11-21 08:14:03 UTC, host 2001:db8::1';
+        $once = SensitiveDataRedactor::redactText($text);
+
+        $this->assertSame($once, SensitiveDataRedactor::redactText($once));
     }
 }
